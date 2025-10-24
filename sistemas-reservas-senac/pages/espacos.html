@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espaços - Sistema SENAC</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-top">
+                <div class="logo">
+                    <div class="logo-icon"><img src="../imagem.jpg" alt="Senac" style="width: 120px; height: 75px;"></div>
+                    <div class="logo-text">
+                        <h1>SENAC</h1>
+                        <p>Sistema de Reservas</p>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <div class="avatar">AD</div>
+                    <div class="user-details">
+                        <div class="username">Administrador</div>
+                        <div class="role">Gestor</div>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="nav">
+                <a href="../index.html" class="nav-link">📊 Dashboard</a>
+                <a href="./reservas.html" class="nav-link">📅 Reservas</a>
+                <a href="./espacos.html" class="nav-link active">🏢 Espaços</a>
+                <a href="./relatorios.html" class="nav-link">📈 Relatórios</a>
+                <a href="./colaboradores.html" class="nav-link">👥 Colaboradores</a>
+                <a href="./configuracoes.html" class="nav-link">⚙️ Configurações</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <div>
+                    <h2 class="page-title">Espaços Disponíveis</h2>
+                    <p class="page-subtitle">Gerencie todos os espaços disponíveis para reserva</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-primary" data-action="new-space">
+                        <span class="btn-icon">➕</span>
+                        Adicionar Espaço
+                    </button>
+                </div>
+            </div>
+
+            <div class="quick-stats">
+                <div class="quick-stat-item">
+                    <span class="quick-stat-number">4</span>
+                    <span class="quick-stat-label">Total de Espaços</span>
+                </div>
+                <div class="quick-stat-item">
+                    <span class="quick-stat-number">4</span>
+                    <span class="quick-stat-label">Disponíveis</span>
+                </div>
+                <div class="quick-stat-item">
+                    <span class="quick-stat-number">0</span>
+                    <span class="quick-stat-label">Em Manutenção</span>
+                </div>
+            </div>
+
+            <div class="spaces-grid">
+                <div class="space-card">
+                    <div class="space-card-header">
+                        <span class="space-badge space-badge-available">Disponível</span>
+                    </div>
+                    <div class="space-card-icon">🎭</div>
+                    <h3 class="space-card-title">Auditório Principal</h3>
+                    <p class="space-card-description">
+                        Auditório moderno equipado com sistema de som profissional, 
+                        projeção em alta definição e ar-condicionado.
+                    </p>
+                    <div class="space-card-details">
+                        <div class="space-detail-item">
+                            <span class="space-detail-icon">👥</span>
+                            <span class="space-detail-text">200 pessoas</span>
+                        </div>
+                        <div class="space-detail-item">
+                            <span class="space-detail-icon">📍</span>
+                            <span class="space-detail-text">Térreo - Bloco A</span>
+                        </div>
+                    </div>
+                    <div class="space-card-resources">
+                        <span class="resource-tag">🎤 Som</span>
+                        <span class="resource-tag">📽️ Projetor</span>
+                        <span class="resource-tag">❄️ Ar-Condicionado</span>
+                        <span class="resource-tag">📶 Wi-Fi</span>
+                    </div>
+                    <div class="space-card-actions">
+                        <button class="btn btn-primary btn-block" data-action="reserve-space" data-id="1">Reservar Espaço</button>
+                        <div class="space-card-icons">
+                            <button class="btn-icon btn-icon-sm" title="Ver detalhes">👁️</button>
+                            <button class="btn-icon btn-icon-sm" title="Editar">✏️</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-card">
+                    <div class="space-card-header">
+                        <span class="space-badge space-badge-available">Disponível</span>
+                    </div>
+                    <div class="space-card-icon">💻</div>
+                    <h3 class="space-card-title">Laboratório de Informática 1</h3>
+                    <p class="space-card-description">
+                        Laboratório equipado com 40 computadores de última geração, 
+                        ideal para aulas práticas e treinamentos.
+                    </p>
+                    <div class="space-card-details">
+                        <div class="space-detail-item">
+                            <span class="space-detail-icon">👥</span>
+                            <span class="space-detail-text">40 pessoas</span>
+                        </div>
+                        <div class="space-detail-item">
+                            <span class="space-detail-icon">📍</span>
+                            <span class="space-detail-text">1º Andar - Bloco B</span>
+                        </div>
+                    </div>
+                    <div class="space-card-resources">
+                        <span class="resource-tag">💻 40 PCs</span>
+                        <span class="resource-tag">📽️ Projetor</span>
+                        <span class="resource-tag">📶 Wi-Fi</span>
+                    </div>
+                    <div class="space-card-actions">
+                        <button class="btn btn-primary btn-block" data-action="reserve-space" data-id="2">Reservar Espaço</button>
+                        <div class="space-card-icons">
+                            <button class="btn-icon btn-icon-sm" title="Ver detalhes">👁️</button>
+                            <button class="btn-icon btn-icon-sm" title="Editar">✏️</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-card">
+                    <div class="space-card-header">
+                        <span class="space-badge space-badge-available">Disponível</span>
+                    </div>
+                    <div class="space-card-icon">👔</div>
+                    <h3 class="space-card-title">Sala de Reuniões Executiva</h3>
+                    <p class="space-card-description">
+                        Sala moderna para reuniões corporativas com mesa para 20 pessoas 
+                        e sistema de videoconferência.
+                    </p>
+                    <div class="space-card-details">
+                        <div class="space-detail-item">
+                            <span class="space-detail-icon">👥</span>
+                            <span class="space-detail-text">20 pessoas</span>
+                        </div>
+                        <div class="space-detail-item">
+                            <span class="space-detail-icon">📍</span>
+                            <span class="space-detail-text">2º Andar - Bloco A</span>
+                        </div>
+                    </div>
+                    <div class="space-card-resources">
+                        <span class="resource-tag">📹 Videoconf.</span>
+                        <span class="resource-tag">📽️ Projetor</span>
+                        <span class="resource-tag">📶 Wi-Fi</span>
+                    </div>
+                    <div class="space-card-actions">
+                        <button class="btn btn-primary btn-block" data-action="reserve-space" data-id="3">Reservar Espaço</button>
+                        <div class="space-card-icons">
+                            <button class="btn-icon btn-icon-sm" title="Ver detalhes">👁️</button>
+                            <button class="btn-icon btn-icon-sm" title="Editar">✏️</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-card">
+                    <div class="space-card-header">
+                        <span class="space-badge space-badge-available">Disponível</span>
+                    </div>
+                    <div class="space-card-icon">📚</div>
+                    <h3 class="space-card-title">Sala de Aula 101</h3>
+                    <p class="space-card-description">
+                        Sala de aula tradicional com carteiras individuais, 
+                        quadro branco e projetor multimídia.
+                    </p>
+                    <div class="space-card-details">
+                        <div class="space-detail-item">
+                            <span class="space-detail-icon">👥</span>
+                            <span class="space-detail-text">50 pessoas</span>
+                        </div>
+                        <div class="space-detail-item">
+                            <span class="space-detail-icon">📍</span>
+                            <span class="space-detail-text">1º Andar - Bloco A</span>
+                        </div>
+                    </div>
+                    <div class="space-card-resources">
+                        <span class="resource-tag">📝 Quadro</span>
+                        <span class="resource-tag">📽️ Projetor</span>
+                        <span class="resource-tag">❄️ Ar-Cond.</span>
+                    </div>
+                    <div class="space-card-actions">
+                        <button class="btn btn-primary btn-block" data-action="reserve-space" data-id="4">Reservar Espaço</button>
+                        <div class="space-card-icons">
+                            <button class="btn-icon btn-icon-sm" title="Ver detalhes">👁️</button>
+                            <button class="btn-icon btn-icon-sm" title="Editar">✏️</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 SENAC - Sistema de Reservas. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="../js/app.js"></script>
+</body>
+</html>

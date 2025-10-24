@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios - Sistema SENAC</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-top">
+                <div class="logo">
+                    <div class="logo-icon"><img src="../imagem.jpg" alt="Senac" style="width: 120px; height: 75px;"></div>
+                    <div class="logo-text">
+                        <h1>SENAC</h1>
+                        <p>Sistema de Reservas</p>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <div class="avatar">AD</div>
+                    <div class="user-details">
+                        <div class="username">Administrador</div>
+                        <div class="role">Gestor</div>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="nav">
+                <a href="../index.html" class="nav-link">📊 Dashboard</a>
+                <a href="./reservas.html" class="nav-link">📅 Reservas</a>
+                <a href="./espacos.html" class="nav-link">🏢 Espaços</a>
+                <a href="./relatorios.html" class="nav-link active">📈 Relatórios</a>
+                <a href="./colaboradores.html" class="nav-link">👥 Colaboradores</a>
+                <a href="./configuracoes.html" class="nav-link">⚙️ Configurações</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <div>
+                    <h2 class="page-title">Relatórios e Estatísticas</h2>
+                    <p class="page-subtitle">Análise detalhada de reservas e utilização de espaços</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-secondary" data-action="export-data">
+                        <span class="btn-icon">📥</span>
+                        Exportar PDF
+                    </button>
+                </div>
+            </div>
+
+            <div class="report-filter">
+                <div class="filter-group">
+                    <label class="filter-label">Período:</label>
+                    <select class="filter-select">
+                        <option value="week">Esta Semana</option>
+                        <option value="month" selected>Este Mês</option>
+                        <option value="quarter">Este Trimestre</option>
+                        <option value="year">Este Ano</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">De:</label>
+                    <input type="date" class="filter-input" value="2025-10-01">
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Até:</label>
+                    <input type="date" class="filter-input" value="2025-10-31">
+                </div>
+                <button class="btn btn-primary">Aplicar</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card stat-primary">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">142</h3>
+                        <p class="stat-label">Total de Reservas</p>
+                        <span class="stat-badge stat-badge-success">↑ 18% vs mês anterior</span>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-success">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">118</h3>
+                        <p class="stat-label">Reservas Aprovadas</p>
+                        <span class="stat-badge stat-badge-success">83% de aprovação</span>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-warning">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">12</h3>
+                        <p class="stat-label">Reservas Pendentes</p>
+                        <span class="stat-badge stat-badge-warning">8% do total</span>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-info">
+                    <div class="stat-icon">🏢</div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">75%</h3>
+                        <p class="stat-label">Taxa de Ocupação</p>
+                        <span class="stat-badge stat-badge-info">Média do período</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reports-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📊 Reservas por Tipo</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-placeholder">
+                            <div class="chart-bar-group">
+                                <div class="chart-bar-item">
+                                    <div class="chart-bar-label">Internas</div>
+                                    <div class="chart-bar-wrapper">
+                                        <div class="chart-bar" style="width: 75%; background: var(--primary)">
+                                            <span class="chart-bar-value">106 (75%)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="chart-bar-item">
+                                    <div class="chart-bar-label">Externas</div>
+                                    <div class="chart-bar-wrapper">
+                                        <div class="chart-bar" style="width: 25%; background: var(--secondary)">
+                                            <span class="chart-bar-value">36 (25%)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🏆 Espaços Mais Utilizados</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="ranking-list">
+                            <div class="ranking-item">
+                                <div class="ranking-position">1º</div>
+                                <div class="ranking-content">
+                                    <div class="ranking-name">Auditório Principal</div>
+                                    <div class="ranking-stats">45 reservas • 32%</div>
+                                </div>
+                                <div class="ranking-badge">🥇</div>
+                            </div>
+                            <div class="ranking-item">
+                                <div class="ranking-position">2º</div>
+                                <div class="ranking-content">
+                                    <div class="ranking-name">Laboratório 1</div>
+                                    <div class="ranking-stats">38 reservas • 27%</div>
+                                </div>
+                                <div class="ranking-badge">🥈</div>
+                            </div>
+                            <div class="ranking-item">
+                                <div class="ranking-position">3º</div>
+                                <div class="ranking-content">
+                                    <div class="ranking-name">Sala de Reuniões</div>
+                                    <div class="ranking-stats">32 reservas • 23%</div>
+                                </div>
+                                <div class="ranking-badge">🥉</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 SENAC - Sistema de Reservas. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="../js/app.js"></script>
+</body>
+</html>

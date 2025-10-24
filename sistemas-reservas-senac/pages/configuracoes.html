@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - Sistema SENAC</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-top">
+                <div class="logo">
+                    <div class="logo-icon"><img src="../imagem.jpg" alt="Senac" style="width: 120px; height: 75px;"></div>
+                    <div class="logo-text">
+                        <h1>SENAC</h1>
+                        <p>Sistema de Reservas</p>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <div class="avatar">AD</div>
+                    <div class="user-details">
+                        <div class="username">Administrador</div>
+                        <div class="role">Gestor</div>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="nav">
+                <a href="../index.html" class="nav-link">📊 Dashboard</a>
+                <a href="./reservas.html" class="nav-link">📅 Reservas</a>
+                <a href="./espacos.html" class="nav-link">🏢 Espaços</a>
+                <a href="./relatorios.html" class="nav-link">📈 Relatórios</a>
+                <a href="./colaboradores.html" class="nav-link">👥 Colaboradores</a>
+                <a href="./configuracoes.html" class="nav-link active">⚙️ Configurações</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <div>
+                    <h2 class="page-title">Configurações do Sistema</h2>
+                    <p class="page-subtitle">Personalize e configure o sistema</p>
+                </div>
+            </div>
+
+            <div class="settings-tabs">
+                <button class="settings-tab active" data-tab="general">⚙️ Geral</button>
+                <button class="settings-tab" data-tab="notifications">🔔 Notificações</button>
+                <button class="settings-tab" data-tab="reservations">📅 Reservas</button>
+                <button class="settings-tab" data-tab="security">🔒 Segurança</button>
+            </div>
+
+            <div class="settings-content active" id="general">
+                <div class="settings-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">🏢 Informações da Instituição</h3>
+                        </div>
+                        <div class="card-body">
+                            <form class="settings-form">
+                                <div class="form-group">
+                                    <label class="form-label">Nome da Instituição</label>
+                                    <input type="text" class="form-control" value="SENAC">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">CNPJ</label>
+                                    <input type="text" class="form-control" value="03.709.814/0001-98">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Telefone</label>
+                                        <input type="tel" class="form-control" value="(11) 3000-0000">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">E-mail</label>
+                                        <input type="email" class="form-control" value="contato@senac.com.br">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">🎨 Aparência</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <div class="setting-title">Modo Escuro</div>
+                                    <div class="setting-description">Ativar tema escuro</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <div class="setting-title">Animações</div>
+                                    <div class="setting-description">Ativar animações suaves</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-content" id="notifications">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🔔 Configurações de Notificações</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Notificações por E-mail</div>
+                                <div class="setting-description">Receber notificações por e-mail</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Nova Reserva Criada</div>
+                                <div class="setting-description">Notificar quando criar reserva</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Lembrete de Reserva</div>
+                                <div class="setting-description">Lembrete 24h antes</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-content" id="reservations">
+                <div class="settings-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">📅 Regras de Reserva</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <div class="setting-title">Aprovação Obrigatória</div>
+                                    <div class="setting-description">Reservas precisam de aprovação</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <div class="setting-title">Detecção de Conflitos</div>
+                                    <div class="setting-description">Alertar conflitos automaticamente</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">⏰ Horários e Limites</h3>
+                        </div>
+                        <div class="card-body">
+                            <form class="settings-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Horário de Abertura</label>
+                                        <input type="time" class="form-control" value="07:00">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Horário de Fechamento</label>
+                                        <input type="time" class="form-control" value="22:00">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Salvar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-content" id="security">
+                <div class="settings-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">🔒 Segurança da Conta</h3>
+                        </div>
+                        <div class="card-body">
+                            <form class="settings-form">
+                                <div class="form-group">
+                                    <label class="form-label">Senha Atual</label>
+                                    <input type="password" class="form-control" placeholder="Digite sua senha atual">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Nova Senha</label>
+                                    <input type="password" class="form-control" placeholder="Digite a nova senha">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Confirmar Nova Senha</label>
+                                    <input type="password" class="form-control" placeholder="Confirme a nova senha">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Alterar Senha</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">🛡️ Autenticação</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <div class="setting-title">Autenticação em Dois Fatores</div>
+                                    <div class="setting-description">Segurança extra</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <div class="setting-title">Logout Automático</div>
+                                    <div class="setting-description">Após 30min de inatividade</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card danger-zone">
+                <div class="card-header">
+                    <h3 class="card-title">⚠️ Zona de Perigo</h3>
+                </div>
+                <div class="card-body">
+                    <div class="danger-item">
+                        <div class="danger-info">
+                            <div class="danger-title">Limpar Dados de Teste</div>
+                            <div class="danger-description">Remove todas as reservas de exemplo</div>
+                        </div>
+                        <button class="btn btn-danger" onclick="if(confirm('Limpar todos os dados?')) { localStorage.clear(); Toast.show('Dados limpos!', 'success'); setTimeout(() => location.reload(), 1000); }">
+                            Limpar Dados
+                        </button>
+                    </div>
+                    <div class="danger-item">
+                        <div class="danger-info">
+                            <div class="danger-title">Resetar Configurações</div>
+                            <div class="danger-description">Restaurar configurações padrão</div>
+                        </div>
+                        <button class="btn btn-danger" onclick="if(confirm('Resetar tudo?')) { localStorage.clear(); Toast.show('Sistema resetado!', 'info'); setTimeout(() => location.href='index.html', 1000); }">
+                            Resetar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 SENAC - Sistema de Reservas. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="../js/app.js"></script>
+</body>
+</html>
