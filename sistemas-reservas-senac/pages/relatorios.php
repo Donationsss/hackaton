@@ -27,12 +27,12 @@
             </div>
             
             <nav class="nav">
-                <a href="../index.html" class="nav-link">📊 Dashboard</a>
-                <a href="./reservas.html" class="nav-link">📅 Reservas</a>
-                <a href="./espacos.html" class="nav-link">🏢 Espaços</a>
-                <a href="./relatorios.html" class="nav-link active">📈 Relatórios</a>
-                <a href="./colaboradores.html" class="nav-link">👥 Colaboradores</a>
-                <a href="./configuracoes.html" class="nav-link">⚙️ Configurações</a>
+                <a href="../dashboard.php" class="nav-link">📊 Dashboard</a>
+                <a href="./reservas.php" class="nav-link">📅 Reservas</a>
+                <a href="./espacos.php" class="nav-link">🏢 Espaços</a>
+                <a href="./relatorios.php" class="nav-link active">📈 Relatórios</a>
+                <a href="./colaboradores.php" class="nav-link">👥 Colaboradores</a>
+                <a href="./configuracoes.php" class="nav-link">⚙️ Configurações</a>
             </nav>
         </div>
     </header>

@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard - Sistema SENAC</title>
-    <link rel="stylesheet" href="./css/styles.css" />
+    <link rel="stylesheet" href="./css/comum.css" />
+    <link rel="stylesheet" href="./css/dashboard.css" />
   </head>
   <body>
     <header class="header">
@@ -19,25 +20,29 @@
             </div>
           </div>
           <div class="user-info">
-            <div class="avatar">AD</div>
-            <div class="user-details">
-              <div class="username">Administrador</div>
-              <div class="role">Gestor</div>
+            <div class="user-menu" style="position: relative;">
+              <button class="user-menu-toggle" style="display:flex; align-items:center; gap:10px; background:transparent; border:0; cursor:pointer;">
+                <div class="avatar">AD</div>
+                <div class="user-details" style="text-align:left;">
+                  <div class="username">Administrador</div>
+                  <div class="role">Gestor</div>
+                </div>
+                <span aria-hidden="true">▾</span>
+              </button>
+<div class="user-menu-dropdown" style="position:absolute; right:0; top:calc(100% + 8px); background:#f6f8ff; border:1px solid var(--gray-100); box-shadow: 0 4px 12px rgba(0,0,0,.08); border-radius:8px; padding:6px; min-width:160px; display:none; z-index:1000;">
+                <a href="./logout.php" class="user-menu-item" style="display:block; padding:8px 10px; border-radius:6px; color:inherit; text-decoration:none;">Sair</a>
+              </div>
             </div>
           </div>
         </div>
 
         <nav class="nav">
-          <a href="../index.html" class="nav-link active">📊 Dashboard</a>
-          <a href="./pages/reservas.html" class="nav-link">📅 Reservas</a>
-          <a href="./pages/espacos.html" class="nav-link">🏢 Espaços</a>
-          <a href="./pages/relatorios.html" class="nav-link">📈 Relatórios</a>
-          <a href="./pages/colaboradores.html" class="nav-link"
-            >👥 Colaboradores</a
-          >
-          <a href="./pages/configuracoes.html" class="nav-link"
-            >⚙️ Configurações</a
-          >
+          <a href="./dashboard.php" class="nav-link active">📊 Dashboard</a>
+          <a href="./pages/reservas.php" class="nav-link">📅 Reservas</a>
+          <a href="./pages/espacos.php" class="nav-link">🏢 Espaços</a>
+          <a href="./pages/relatorios.php" class="nav-link">📈 Relatórios</a>
+          <a href="./pages/colaboradores.php" class="nav-link">👥 Colaboradores</a>
+          <a href="./pages/configuracoes.php" class="nav-link">⚙️ Configurações</a>
         </nav>
       </div>
     </header>
@@ -103,7 +108,7 @@
           <div class="card">
             <div class="card-header">
               <h3 class="card-title">📋 Reservas Recentes</h3>
-              <a href="./pages/reservas.html" class="card-link">Ver todas →</a>
+              <a href="./pages/reservas.php" class="card-link">Ver todas →</a>
             </div>
             <div class="card-body" id="recentReservations">
               <!-- Carregado dinamicamente pelo JavaScript -->
@@ -177,7 +182,7 @@
           <div class="card">
             <div class="card-header">
               <h3 class="card-title">🏢 Espaços Disponíveis</h3>
-              <a href="./pages/espacos.html" class="card-link">Ver todos →</a>
+              <a href="./pages/espacos.php" class="card-link">Ver todos →</a>
             </div>
             <div class="card-body">
               <div class="space-item">
@@ -295,6 +300,23 @@
       </div>
     </footer>
 
-    <script src="./js/app.js"></script>
+    <script src="./js/dashboard.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.user-menu').forEach(function(menu){
+          const toggle = menu.querySelector('.user-menu-toggle');
+          const dropdown = menu.querySelector('.user-menu-dropdown');
+          if (!toggle || !dropdown) return;
+          toggle.addEventListener('click', function(e){
+            e.stopPropagation();
+            // Ajusta largura do dropdown para o mesmo tamanho do botão/perfil
+            const w = toggle.getBoundingClientRect().width;
+            dropdown.style.width = w + 'px';
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+          });
+          document.addEventListener('click', function(){ dropdown.style.display = 'none'; });
+        });
+      });
+    </script>
   </body>
 </html>

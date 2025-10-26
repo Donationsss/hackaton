@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reservas - Sistema SENAC</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/comum.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/paginas.css">
 </head>
 <body>
     <header class="header">
@@ -27,12 +29,12 @@
             </div>
             
             <nav class="nav">
-                <a href="../index.html" class="nav-link">📊 Dashboard</a>
-                <a href="./reservas.html" class="nav-link active">📅 Reservas</a>
-                <a href="./espacos.html" class="nav-link">🏢 Espaços</a>
-                <a href="./relatorios.html" class="nav-link">📈 Relatórios</a>
-                <a href="./colaboradores.html" class="nav-link">👥 Colaboradores</a>
-                <a href="./configuracoes.html" class="nav-link">⚙️ Configurações</a>
+                <a href="../dashboard.php" class="nav-link">📊 Dashboard</a>
+                <a href="./reservas.php" class="nav-link active">📅 Reservas</a>
+                <a href="./espacos.php" class="nav-link">🏢 Espaços</a>
+                <a href="./relatorios.php" class="nav-link">📈 Relatórios</a>
+                <a href="./colaboradores.php" class="nav-link">👥 Colaboradores</a>
+                <a href="./configuracoes.php" class="nav-link">⚙️ Configurações</a>
             </nav>
         </div>
     </header>
@@ -171,6 +173,6 @@
         </div>
     </footer>
 
-    <script src="../js/app.js"></script>
+    <script src="../js/paginas.js"></script>
 </body>
 </html>
