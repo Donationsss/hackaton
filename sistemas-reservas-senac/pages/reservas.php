@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="../css/paginas.css">
 </head>
+
 <body>
     <header class="header">
         <div class="container">
@@ -27,7 +29,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <nav class="nav">
                 <a href="../dashboard.php" class="nav-link">📊 Dashboard</a>
                 <a href="./reservas.php" class="nav-link active">📅 Reservas</a>
@@ -46,16 +48,7 @@
                     <h2 class="page-title">Gerenciar Reservas</h2>
                     <p class="page-subtitle">Visualize e gerencie todas as reservas de espaços</p>
                 </div>
-                <div class="page-actions">
-                    <button class="btn btn-secondary" data-action="export-data">
-                        <span class="btn-icon">📥</span>
-                        Exportar
-                    </button>
-                    <button class="btn btn-primary" data-action="new-reservation">
-                        <span class="btn-icon">➕</span>
-                        Nova Reserva
-                    </button>
-                </div>
+
             </div>
 
             <div class="filters-bar">
@@ -175,4 +168,5 @@
 
     <script src="../js/paginas.js"></script>
 </body>
+
 </html>

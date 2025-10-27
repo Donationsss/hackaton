@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Espaços - Sistema SENAC</title>
     <link rel="stylesheet" href="../css/styles.css">
 </head>
+
 <body>
     <header class="header">
         <div class="container">
@@ -25,7 +27,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <nav class="nav">
                 <a href="../dashboard.php" class="nav-link">📊 Dashboard</a>
                 <a href="./reservas.php" class="nav-link">📅 Reservas</a>
@@ -75,7 +77,7 @@
                     <div class="space-card-icon">🎭</div>
                     <h3 class="space-card-title">Auditório Principal</h3>
                     <p class="space-card-description">
-                        Auditório moderno equipado com sistema de som profissional, 
+                        Auditório moderno equipado com sistema de som profissional,
                         projeção em alta definição e ar-condicionado.
                     </p>
                     <div class="space-card-details">
@@ -110,7 +112,7 @@
                     <div class="space-card-icon">💻</div>
                     <h3 class="space-card-title">Laboratório de Informática 1</h3>
                     <p class="space-card-description">
-                        Laboratório equipado com 40 computadores de última geração, 
+                        Laboratório equipado com 40 computadores de última geração,
                         ideal para aulas práticas e treinamentos.
                     </p>
                     <div class="space-card-details">
@@ -144,7 +146,7 @@
                     <div class="space-card-icon">👔</div>
                     <h3 class="space-card-title">Sala de Reuniões Executiva</h3>
                     <p class="space-card-description">
-                        Sala moderna para reuniões corporativas com mesa para 20 pessoas 
+                        Sala moderna para reuniões corporativas com mesa para 20 pessoas
                         e sistema de videoconferência.
                     </p>
                     <div class="space-card-details">
@@ -178,7 +180,7 @@
                     <div class="space-card-icon">📚</div>
                     <h3 class="space-card-title">Sala de Aula 101</h3>
                     <p class="space-card-description">
-                        Sala de aula tradicional com carteiras individuais, 
+                        Sala de aula tradicional com carteiras individuais,
                         quadro branco e projetor multimídia.
                     </p>
                     <div class="space-card-details">
@@ -216,4 +218,5 @@
 
     <script src="../js/app.js"></script>
 </body>
+
 </html>
