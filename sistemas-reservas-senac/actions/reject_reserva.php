@@ -3,24 +3,18 @@ require_once __DIR__ . '/../inc/auth.php';
 require_login();
 require_role('administrador');
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ' . url('/admin.php'));
-    exit;
-}
-
-$id = (int)($_POST['id'] ?? 0);
+$id = (int)($_GET['id'] ?? 0);
 if ($id <= 0) {
-    header('Location: ' . url('/admin.php?create_error=ID inválido'));
+    header('Location: ' . url('/dashboard.php?error=ID inválido'));
     exit;
 }
 
 try {
     $stmt = $pdo->prepare("UPDATE reservas SET status='livre', approved_by=NULL, approved_at=NULL WHERE id=? AND status='proposta'");
     $stmt->execute([$id]);
+    header('Location: ' . url('/dashboard.php?success=Reserva rejeitada'));
+    exit;
 } catch (Throwable $e) {
-    header('Location: ' . url('/admin.php?create_error=' . urlencode('Falha ao rejeitar: '.$e->getMessage())));
+    header('Location: ' . url('/dashboard.php?error=' . urlencode('Falha ao rejeitar: '.$e->getMessage())));
     exit;
 }
-
-header('Location: ' . url('/admin.php?create_success=Proposta rejeitada'));
-exit;

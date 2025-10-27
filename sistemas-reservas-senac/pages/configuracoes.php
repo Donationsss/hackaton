@@ -1,9 +1,29 @@
+<?php
+require_once __DIR__ . '/../inc/auth.php';
+require_login();
+require_role('administrador');
+
+$user = current_user();
+
+function user_initials(string $name): string {
+    $parts = preg_split('/\s+/', trim($name));
+    $ini = '';
+    foreach ($parts as $p) {
+        if ($p !== '') {
+            $ini .= mb_strtoupper(mb_substr($p, 0, 1, 'UTF-8'), 'UTF-8');
+        }
+        if (mb_strlen($ini, 'UTF-8') >= 2) break;
+    }
+    return $ini ?: 'US';
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configurações - Sistema SENAC</title>
+    <link rel="stylesheet" href="../css/comum.css">
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
@@ -18,10 +38,18 @@
                     </div>
                 </div>
                 <div class="user-info">
-                    <div class="avatar">AD</div>
-                    <div class="user-details">
-                        <div class="username">Administrador</div>
-                        <div class="role">Gestor</div>
+                    <div class="user-menu" style="position: relative;">
+                        <button class="user-menu-toggle" style="display:flex; align-items:center; gap:10px; background:transparent; border:0; cursor:pointer;">
+                            <div class="avatar"><?php echo htmlspecialchars(user_initials($user['name'] ?? 'Usuário')); ?></div>
+                            <div class="user-details" style="text-align:left;">
+                                <div class="username"><?php echo htmlspecialchars($user['name'] ?? 'Usuário'); ?></div>
+                                <div class="role">Gestor</div>
+                            </div>
+                            <span aria-hidden="true">▾</span>
+                        </button>
+                        <div class="user-menu-dropdown" style="position:absolute; right:0; top:calc(100% + 8px); background:#f6f8ff; border:1px solid var(--gray-100); box-shadow: 0 4px 12px rgba(0,0,0,.08); border-radius:8px; padding:6px; min-width:160px; display:none; z-index:1000;">
+                            <a href="../logout.php" class="user-menu-item" style="display:block; padding:8px 10px; border-radius:6px; color:inherit; text-decoration:none;">Sair</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -31,7 +59,7 @@
                 <a href="./reservas.php" class="nav-link">📅 Reservas</a>
                 <a href="./espacos.php" class="nav-link">🏢 Espaços</a>
                 <a href="./relatorios.php" class="nav-link">📈 Relatórios</a>
-                <a href="./colaboradores.php" class="nav-link">👥 Colaboradores</a>
+                <a href="./colaboradores-dashboard.php" class="nav-link">👥 Colaboradores</a>
                 <a href="./configuracoes.php" class="nav-link active">⚙️ Configurações</a>
             </nav>
         </div>
@@ -296,6 +324,24 @@
         </div>
     </footer>
 
-    <script src="../js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Dropdown perfil
+            document.querySelectorAll('.user-menu').forEach(function(menu) {
+                const toggle = menu.querySelector('.user-menu-toggle');
+                const dropdown = menu.querySelector('.user-menu-dropdown');
+                if (!toggle || !dropdown) return;
+                toggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const w = toggle.getBoundingClientRect().width;
+                    dropdown.style.width = w + 'px';
+                    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                });
+                document.addEventListener('click', function() {
+                    dropdown.style.display = 'none';
+                });
+            });
+        });
+    </script>
 </body>
 </html>

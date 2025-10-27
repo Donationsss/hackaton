@@ -1,10 +1,10 @@
 <?php
 require_once __DIR__ . '/../inc/auth.php';
 require_login();
-require_role('visualizador');
+require_role('colaborador');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ' . url('/visualizador.php'));
+    header('Location: ' . url('/colaboradores.php'));
     exit;
 }
 
@@ -13,7 +13,7 @@ $title = trim($_POST['request_title'] ?? '');
 $note = trim($_POST['request_note'] ?? '');
 $name = trim($_POST['request_name'] ?? '');
 if ($id <= 0) {
-    header('Location: ' . url('/visualizador.php?error=' . urlencode('ID inválido')));
+    header('Location: ' . url('/colaboradores.php?error=' . urlencode('ID inválido')));
     exit;
 }
 
@@ -25,13 +25,13 @@ $stmt = $pdo->prepare("UPDATE reservas SET status='proposta', created_by=?, crea
 
     // Verifica se algo foi atualizado
     if ($stmt->rowCount() === 0) {
-        header('Location: ' . url('/visualizador.php?error=' . urlencode('O slot não está mais disponível.')));
+        header('Location: ' . url('/colaboradores.php?error=' . urlencode('O slot não está mais disponível.')));
         exit;
     }
 
-    header('Location: ' . url('/visualizador.php?success=' . urlencode('Solicitação enviada ao administrador.')));
+    header('Location: ' . url('/colaboradores.php?success=' . urlencode('Solicitação enviada ao administrador.')));
     exit;
 } catch (Throwable $e) {
-    header('Location: ' . url('/visualizador.php?error=' . urlencode('Erro ao solicitar: '.$e->getMessage())));
+    header('Location: ' . url('/colaboradores.php?error=' . urlencode('Erro ao solicitar: '.$e->getMessage())));
     exit;
 }

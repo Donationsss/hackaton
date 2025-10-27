@@ -47,6 +47,7 @@ CREATE INDEX IF NOT EXISTS idx_reservas_status ON reservas(status);
 -- Papéis básicos
 INSERT IGNORE INTO roles (name, description) VALUES
   ('administrador', 'Acesso total ao dashboard e aprovação/rejeição de reservas'),
+  ('colaborador', 'Pode solicitar reservas internas'),
   ('visualizador', 'Pode visualizar slots livres');
 
 -- Opcional: slot de exemplo (livre hoje, 09:00-10:00)

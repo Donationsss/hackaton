@@ -4,7 +4,10 @@ require_once __DIR__ . '/inc/auth.php';
 // Se já logado, redireciona conforme a categoria
 if ($u = current_user()) {
     if ($u['role_name'] === 'administrador') {
-        header('Location: ' . url('/admin.php'));
+        header('Location: ' . url('/dashboard.php'));
+        exit;
+    } elseif ($u['role_name'] === 'colaborador') {
+        header('Location: ' . url('/colaboradores.php'));
         exit;
     }
     header('Location: ' . url('/visualizador.php'));
@@ -21,6 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($user) {
         if ($user['role_name'] === 'administrador') {
             header('Location: ' . url('/dashboard.php'));
+        } elseif ($user['role_name'] === 'colaborador') {
+            header('Location: ' . url('/colaboradores.php'));
         } else {
             header('Location: ' . url('/visualizador.php'));
         }

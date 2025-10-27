@@ -8,14 +8,16 @@ $user = current_user();
 $success = $_GET['success'] ?? '';
 $error = $_GET['error'] ?? '';
 
-// Buscar slots livres (futuros)
-$stmt = $pdo->prepare("SELECT r.*, s.name AS space_name, s.type AS space_type, s.capacity
+// Buscar slots livres (futuros) e reservas confirmadas
+$stmt = $pdo->prepare("SELECT r.*, s.name AS space_name, s.type AS space_type, s.capacity, 
+                                u.name AS requester_name, r.request_title
                          FROM reservas r
                          LEFT JOIN spaces s ON s.id = r.space_id
-                         WHERE r.status = 'livre' AND r.date >= CURDATE()
+                         LEFT JOIN users u ON u.id = r.created_by
+                         WHERE r.date >= CURDATE() AND (r.status = 'livre' OR r.status = 'reservado')
                          ORDER BY r.date, r.time_start");
 $stmt->execute();
-$livres = $stmt->fetchAll();
+$slots = $stmt->fetchAll();
 
 function user_initials(string $name): string
 {
@@ -92,37 +94,42 @@ function user_initials(string $name): string
       <div class="dashboard-grid">
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title">📋 Slots Livres</h3>
+            <h3 class="card-title">📋 Horários e Eventos</h3>
           </div>
           <div class="card-body">
-            <?php if (!$livres): ?>
-              <p style="text-align: center; padding: 32px; color: #999">Nenhum slot livre disponível.</p>
+            <?php if (!$slots): ?>
+              <p style="text-align: center; padding: 32px; color: #999">Nenhum horário disponível.</p>
             <?php else: ?>
               <div class="list">
-                <?php foreach ($livres as $r): ?>
-                  <div class="list-item" style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--gray-100); gap:16px;">
+                <?php foreach ($slots as $r): ?>
+                  <div class="list-item" style="display:flex; flex-direction:column; padding:12px 0; border-bottom:1px solid var(--gray-100); gap:8px;">
                     <div>
                       <div style="font-weight:600;">
                         <?php echo htmlspecialchars($r['space_name'] ?? 'Espaço não informado'); ?>
+                        <?php if (!empty($r['request_title'])): ?>
+                          - <?php echo htmlspecialchars($r['request_title']); ?>
+                        <?php endif; ?>
                       </div>
                       <div style="font-size:12px; color: var(--gray-600); margin-top:4px;">
                         <?php echo htmlspecialchars(date('d/m/Y', strtotime($r['date']))); ?> •
                         <?php echo htmlspecialchars(substr($r['time_start'], 0, 5)); ?> - <?php echo htmlspecialchars(substr($r['time_end'], 0, 5)); ?>
                         <?php if (!empty($r['capacity'])): ?> • Capacidade: <?php echo (int)$r['capacity']; ?><?php endif; ?>
                       </div>
-                      <div style="font-size:12px; color: var(--gray-600); margin-top:4px;">Status: <span class="stat-badge stat-badge-info">livre</span></div>
-                    </div>
-                    <div>
-                      <form method="post" action="<?php echo htmlspecialchars(url('/actions/solicitar_reserva.php')); ?>">
-                        <input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>" />
-                        <button class="btn btn-primary" type="button"
-                          data-action="open-request"
-                          data-id="<?php echo (int)$r['id']; ?>"
-                          data-space="<?php echo htmlspecialchars($r['space_name'] ?? ''); ?>"
-                          data-date="<?php echo htmlspecialchars(date('d/m/Y', strtotime($r['date']))); ?>"
-                          data-start="<?php echo htmlspecialchars(substr($r['time_start'], 0, 5)); ?>"
-                          data-end="<?php echo htmlspecialchars(substr($r['time_end'], 0, 5)); ?>">Solicitar reserva</button>
-                      </form>
+                      <?php if (!empty($r['requester_name'])): ?>
+                        <div style="font-size:12px; color: var(--gray-600); margin-top:4px;">
+                          Reservado por: <?php echo htmlspecialchars($r['requester_name']); ?>
+                        </div>
+                      <?php endif; ?>
+                      <div style="font-size:12px; color: var(--gray-600); margin-top:4px;">
+                        Status: 
+                        <?php if ($r['status'] == 'livre'): ?>
+                          <span class="stat-badge stat-badge-info">Livre</span>
+                        <?php elseif ($r['status'] == 'reservado'): ?>
+                          <span class="stat-badge stat-badge-success">Reservado</span>
+                        <?php else: ?>
+                          <span class="stat-badge stat-badge-warning"><?php echo htmlspecialchars($r['status']); ?></span>
+                        <?php endif; ?>
+                      </div>
                     </div>
                   </div>
                 <?php endforeach; ?>
@@ -140,45 +147,6 @@ function user_initials(string $name): string
     </div>
   </footer>
 
-  <!-- Modal Solicitar Reserva -->
-  <div id="requestModal" style="position:fixed; inset:0; background:rgba(0,0,0,.4); display:none; align-items:center; justify-content:center; z-index:2000;">
-    <div style="background:#fff; width:100%; max-width:520px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.2);">
-      <div style="padding:16px 20px; border-bottom:1px solid var(--gray-100); display:flex; justify-content:space-between; align-items:center;">
-        <h3 style="margin:0;">Solicitar reserva</h3>
-        <button id="closeRequestModal" class="btn btn-sm btn-secondary">Fechar</button>
-      </div>
-      <form method="post" action="<?php echo htmlspecialchars(url('/actions/solicitar_reserva.php')); ?>">
-        <div style="padding:16px 20px;">
-          <input type="hidden" name="id" id="req_id" />
-          <div style="margin-bottom:10px; font-size:14px; color:var(--gray-700);">
-            <div><strong>Espaço:</strong> <span id="req_space">—</span></div>
-            <div><strong>Data:</strong> <span id="req_date">—</span></div>
-            <div><strong>Horário:</strong> <span id="req_time">—</span></div>
-          </div>
-          <div class="row" style="margin-bottom:12px;">
-            <label style="display:block; font-weight:600; margin-bottom:6px;">Seu nome (opcional)</label>
-            <input type="text" name="request_name" value="<?php echo htmlspecialchars($user['name'] ?? ''); ?>" placeholder="Ex.: Maria Silva"
-              style="width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:8px; background:#f9fafb;" />
-          </div>
-          <div class="row" style="margin-bottom:12px;">
-            <label style="display:block; font-weight:600; margin-bottom:6px;">Título (opcional)</label>
-            <input type="text" name="request_title" placeholder="Ex.: Reunião do projeto X"
-              style="width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:8px; background:#f9fafb;" />
-          </div>
-          <div class="row" style="margin-bottom:4px;">
-            <label style="display:block; font-weight:600; margin-bottom:6px;">Observações (opcional)</label>
-            <textarea name="request_note" rows="4" placeholder="Inclua detalhes úteis para o administrador"
-              style="width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:8px; background:#f9fafb; resize:vertical;"></textarea>
-          </div>
-        </div>
-        <div style="padding:12px 20px; border-top:1px solid var(--gray-100); display:flex; gap:8px; justify-content:flex-end;">
-          <button type="button" id="cancelRequest" class="btn btn-secondary">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Enviar solicitação</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Dropdown perfil
@@ -195,39 +163,6 @@ function user_initials(string $name): string
         });
         document.addEventListener('click', function() {
           dropdown.style.display = 'none';
-        });
-      });
-
-      // Modal Solicitar Reserva
-      const modal = document.getElementById('requestModal');
-      const closeBtn = document.getElementById('closeRequestModal');
-      const cancelBtn = document.getElementById('cancelRequest');
-
-      function openModal(data) {
-        document.getElementById('req_id').value = data.id;
-        document.getElementById('req_space').textContent = data.space;
-        document.getElementById('req_date').textContent = data.date;
-        document.getElementById('req_time').textContent = data.start + ' - ' + data.end;
-        modal.style.display = 'flex';
-      }
-
-      function closeModal() {
-        modal.style.display = 'none';
-      }
-      closeBtn.addEventListener('click', closeModal);
-      cancelBtn.addEventListener('click', closeModal);
-      modal.addEventListener('click', function(e) {
-        if (e.target === modal) closeModal();
-      });
-      document.querySelectorAll('[data-action="open-request"]').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          openModal({
-            id: this.dataset.id,
-            space: this.dataset.space,
-            date: this.dataset.date,
-            start: this.dataset.start,
-            end: this.dataset.end,
-          });
         });
       });
     });
