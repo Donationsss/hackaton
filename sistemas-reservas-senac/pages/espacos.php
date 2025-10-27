@@ -62,6 +62,7 @@ function get_space_icon(string $spaceName): string {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Espaços - Sistema SENAC</title>
+    <link rel="icon" type="image/png" href="../logo.png">
     <link rel="stylesheet" href="../css/comum.css">
     <link rel="stylesheet" href="../css/styles.css">
 </head>
@@ -71,7 +72,7 @@ function get_space_icon(string $spaceName): string {
         <div class="container">
             <div class="header-top">
                 <div class="logo">
-                    <div class="logo-icon"><img src="../imagem.jpg" alt="Senac" style="width: 120px; height: 75px;"></div>
+                    <div class="logo-icon"><img src="../logo.png" alt="Senac" style="width: 120px; height: 75px;"></div>
                     <div class="logo-text">
                         <h1>SENAC</h1>
                         <p>Sistema de Reservas</p>
@@ -87,7 +88,7 @@ function get_space_icon(string $spaceName): string {
                             </div>
                             <span aria-hidden="true">▾</span>
                         </button>
-                        <div class="user-menu-dropdown" style="position:absolute; right:0; top:calc(100% + 8px); background:#f6f8ff; border:1px solid var(--gray-100); box-shadow: 0 4px 12px rgba(0,0,0,.08); border-radius:8px; padding:6px; min-width:160px; display:none; z-index:1000;">
+                        <div class="user-menu-dropdown" style="position:absolute; right:0; top:calc(100% + 8px); background:#f6f8ff; border:1px solid var(--gray-100); box-shadow: 0 4px 12px rgba(0,0,0,.08); border-radius:8px; padding:6px; min-width:160px; display:none; z-index:1000; color:var(--gray-800);">
                             <a href="../logout.php" class="user-menu-item" style="display:block; padding:8px 10px; border-radius:6px; color:inherit; text-decoration:none;">Sair</a>
                         </div>
                     </div>

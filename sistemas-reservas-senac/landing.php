@@ -17,6 +17,7 @@ if ($u = current_user()) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Reservas SENAC</title>
+    <link rel="icon" type="image/png" href="./logo.png">
     <link rel="stylesheet" href="./css/comum.css">
     <link rel="stylesheet" href="./css/landing.css">
 </head>
@@ -27,9 +28,9 @@ if ($u = current_user()) {
             <div class="hero-content">
                 <h1 class="hero-title">Sistema de Reservas SENAC</h1>
                 <p class="hero-subtitle">
-                    Simplifique o gerenciamento de espaços e eventos com nossa plataforma
-                    digital centralizada. Evite conflitos, otimize a comunicação e tenha
-                    controle total das suas reservas.
+                    Gerencie reservas de espaços de forma inteligente e eficiente. 
+                    Nossa plataforma oferece controle total sobre eventos, espaços e 
+                    colaboradores com interface intuitiva e recursos avançados.
                 </p>
                 <div class="hero-buttons">
                     <a href="<?php echo htmlspecialchars(url('/login.php')); ?>" class="btn btn-light btn-lg">
@@ -47,9 +48,9 @@ if ($u = current_user()) {
     <section class="features">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Funcionalidades Principais</h2>
+                <h2 class="section-title">Recursos Principais</h2>
                 <p class="section-subtitle">
-                    Tudo o que você precisa para gerenciar reservas de forma eficiente
+                    Uma solução completa para gerenciamento de reservas e eventos
                 </p>
             </div>
 
@@ -59,7 +60,7 @@ if ($u = current_user()) {
                     <h3 class="feature-title">Agenda Interativa</h3>
                     <p class="feature-description">
                         Visualize todas as reservas em uma agenda clara e organizada,
-                        com alertas automáticos para evitar conflitos de horário.
+                        com indicadores visuais para diferentes tipos de eventos.
                     </p>
                 </div>
 
@@ -67,35 +68,35 @@ if ($u = current_user()) {
                     <div class="feature-icon">👥</div>
                     <h3 class="feature-title">Múltiplos Perfis</h3>
                     <p class="feature-description">
-                        Sistema com três níveis de acesso: Gestor/Admin, Colaborador
-                        e Visualização, cada um com permissões específicas.
+                        Sistema com três níveis de acesso: Administrador, Colaborador
+                        e Visualizador, cada um com funcionalidades específicas.
                     </p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">📊</div>
-                    <h3 class="feature-title">Dashboard Completo</h3>
+                    <h3 class="feature-title">Painel Personalizado</h3>
                     <p class="feature-description">
-                        Acompanhe estatísticas, gráficos e indicadores em tempo real
-                        para tomadas de decisão mais assertivas.
+                        Cada usuário tem acesso a um painel personalizado com as
+                        informações e funcionalidades adequadas ao seu perfil.
                     </p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">🔔</div>
-                    <h3 class="feature-title">Notificações</h3>
+                    <h3 class="feature-title">Notificações Inteligentes</h3>
                     <p class="feature-description">
                         Receba alertas sobre aprovações, cancelamentos e lembretes
-                        de reservas próximas.
+                        de reservas próximas de forma organizada.
                     </p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">📈</div>
-                    <h3 class="feature-title">Relatórios Gerenciais</h3>
+                    <h3 class="feature-title">Relatórios Detalhados</h3>
                     <p class="feature-description">
-                        Gere relatórios detalhados sobre uso de espaços, horários
-                        mais utilizados e muito mais.
+                        Gere relatórios completos sobre uso de espaços, horários
+                        mais utilizados e estatísticas de reservas.
                     </p>
                 </div>
 
@@ -104,7 +105,7 @@ if ($u = current_user()) {
                     <h3 class="feature-title">Gestão de Espaços</h3>
                     <p class="feature-description">
                         Cadastre e gerencie todos os espaços disponíveis com
-                        informações de capacidade e recursos.
+                        informações detalhadas de capacidade e recursos.
                     </p>
                 </div>
             </div>
@@ -117,33 +118,33 @@ if ($u = current_user()) {
             <div class="benefits-content">
                 <div>
                     <h2 class="section-title" style="text-align: left;">
-                        Por que usar nosso sistema?
+                        Por que escolher nossa plataforma?
                     </h2>
                     <ul class="benefits-list">
                         <li class="benefit-item">
                             <div class="benefit-icon">✅</div>
                             <div class="benefit-text">
-                                <h3>Elimine Conflitos de Horário</h3>
+                                <h3>Controle Total de Reservas</h3>
                                 <p>
-                                    Sistema inteligente que detecta e previne
-                                    automaticamente conflitos de reservas.
+                                    Sistema inteligente que organiza e gerencia
+                                    todas as reservas de forma automática e eficiente.
                                 </p>
                             </div>
                         </li>
                         <li class="benefit-item">
                             <div class="benefit-icon">⚡</div>
                             <div class="benefit-text">
-                                <h3>Processo Ágil e Eficiente</h3>
+                                <h3>Interface Intuitiva</h3>
                                 <p>
-                                    Substitua planilhas e e-mails por um sistema
-                                    centralizado e fácil de usar.
+                                    Substitua processos complexos por uma interface
+                                    moderna, simples e fácil de usar.
                                 </p>
                             </div>
                         </li>
                         <li class="benefit-item">
                             <div class="benefit-icon">🔒</div>
                             <div class="benefit-text">
-                                <h3>Controle e Segurança</h3>
+                                <h3>Segurança e Controle</h3>
                                 <p>
                                     Gerencie permissões e tenha controle total sobre
                                     quem pode solicitar e aprovar reservas.
@@ -153,7 +154,7 @@ if ($u = current_user()) {
                         <li class="benefit-item">
                             <div class="benefit-icon">📱</div>
                             <div class="benefit-text">
-                                <h3>Acesso em Qualquer Lugar</h3>
+                                <h3>Acesso Universal</h3>
                                 <p>
                                     Interface responsiva que funciona perfeitamente
                                     em computadores, tablets e smartphones.
@@ -173,12 +174,12 @@ if ($u = current_user()) {
     <section class="stats">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Resultados Comprovados</h2>
+                <h2 class="section-title">Benefícios Comprovados</h2>
             </div>
             <div class="stats-grid">
                 <div class="stat-item">
                     <div class="stat-number">95%</div>
-                    <div class="stat-label">Redução de Conflitos</div>
+                    <div class="stat-label">Organização Melhorada</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-number">60%</div>
@@ -199,9 +200,9 @@ if ($u = current_user()) {
     <!-- CTA Section -->
     <section class="cta">
         <div class="container">
-            <h2 class="cta-title">Pronto para transformar suas reservas?</h2>
+            <h2 class="cta-title">Pronto para organizar suas reservas?</h2>
             <p class="cta-subtitle">
-                Comece agora e experimente a diferença de um sistema profissional
+                Junte-se à nossa plataforma e experimente uma nova forma de gerenciar eventos
             </p>
             <a href="<?php echo htmlspecialchars(url('/cadastro.php')); ?>" class="btn btn-light btn-lg">
                 Criar Conta Gratuitamente

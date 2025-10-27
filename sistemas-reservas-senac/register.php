@@ -25,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Cadastro</title>
+  <link rel="icon" type="image/png" href="./logo.png">
   <style>
     body { font-family: Arial, sans-serif; margin: 2rem; }
     .card { max-width: 520px; margin: 0 auto; border: 1px solid #ddd; padding: 1rem; border-radius: 8px; }

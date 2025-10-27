@@ -5,6 +5,7 @@
 /* Importar estilos do dashboard para header e nav */
 
 /* === FILTERS BAR === */
+
 .filters-bar {
     display: flex;
     gap: var(--spacing-md);

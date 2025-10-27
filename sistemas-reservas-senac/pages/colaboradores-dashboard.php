@@ -35,6 +35,7 @@ function user_initials(string $name): string {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Colaboradores - Sistema SENAC</title>
+    <link rel="icon" type="image/png" href="../logo.png">
     <link rel="stylesheet" href="../css/comum.css">
     <link rel="stylesheet" href="../css/styles.css">
 </head>
@@ -43,7 +44,7 @@ function user_initials(string $name): string {
         <div class="container">
             <div class="header-top">
                 <div class="logo">
-                    <div class="logo-icon"><img src="../imagem.jpg" alt="Senac" style="width: 120px; height: 75px;"></div>
+                    <div class="logo-icon"><img src="../logo.png" alt="Senac" style="width: 120px; height: 75px;"></div>
                     <div class="logo-text">
                         <h1>SENAC</h1>
                         <p>Sistema de Reservas</p>
@@ -59,7 +60,7 @@ function user_initials(string $name): string {
                             </div>
                             <span aria-hidden="true">▾</span>
                         </button>
-                        <div class="user-menu-dropdown" style="position:absolute; right:0; top:calc(100% + 8px); background:#f6f8ff; border:1px solid var(--gray-100); box-shadow: 0 4px 12px rgba(0,0,0,.08); border-radius:8px; padding:6px; min-width:160px; display:none; z-index:1000;">
+                        <div class="user-menu-dropdown" style="position:absolute; right:0; top:calc(100% + 8px); background:#f6f8ff; border:1px solid var(--gray-100); box-shadow: 0 4px 12px rgba(0,0,0,.08); border-radius:8px; padding:6px; min-width:160px; display:none; z-index:1000; color:var(--gray-800);">
                             <a href="../logout.php" class="user-menu-item" style="display:block; padding:8px 10px; border-radius:6px; color:inherit; text-decoration:none;">Sair</a>
                         </div>
                     </div>
@@ -83,8 +84,6 @@ function user_initials(string $name): string {
                 <div>
                     <h2 class="page-title">Gerenciar Colaboradores</h2>
                     <p class="page-subtitle">Gerencie usuários e permissões do sistema</p>
-                    <?php if (!empty($success)): ?><div class="stat-badge stat-badge-success" style="margin-top:8px; display:inline-block;"><?php echo htmlspecialchars($success); ?></div><?php endif; ?>
-                    <?php if (!empty($error)): ?><div class="stat-badge stat-badge-warning" style="margin-top:8px; display:inline-block;"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
                 </div>
                 <div class="page-actions">
                     <button class="btn btn-primary" data-action="add-collaborator">
@@ -113,12 +112,11 @@ function user_initials(string $name): string {
                                 <span class="status-badge status-active">Ativo</span>
                             </div>
                         </div>
-                        <div class="collaborator-actions">
-                            <a href="<?php echo url('/actions/remove_role.php?user_id=' . (int)$collab['id']); ?>" 
-                               class="btn btn-sm btn-danger" 
-                               onclick="return confirm('Deseja remover o cargo deste usuário? Ele se tornará visualizador.');">
-                                Remover Cargo
-                            </a>
+                        <div class="collaborator-actions" style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+                            <button class="btn btn-sm btn-primary" onclick="viewProfile(<?php echo (int)$collab['id']; ?>)">👤 Perfil</button>
+                            <?php if ($collab['role_name'] == 'colaborador'): ?>
+                                <button class="btn btn-sm btn-secondary" onclick="editRole(<?php echo (int)$collab['id']; ?>, '<?php echo htmlspecialchars($collab['name']); ?>', '<?php echo htmlspecialchars($collab['role_name']); ?>')">✏️ Editar</button>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -168,9 +166,19 @@ function user_initials(string $name): string {
                 </div>
             </div>
         </div>
-    </main>
+      </main>
 
-    <footer class="footer">
+      <script src="../js/toast.js"></script>
+      <script>
+        <?php if (!empty($success)): ?>
+        setTimeout(() => { if (window.Toast) window.Toast.success('<?php echo htmlspecialchars($success); ?>'); }, 100);
+        <?php endif; ?>
+        <?php if (!empty($error)): ?>
+        setTimeout(() => { if (window.Toast) window.Toast.error('<?php echo htmlspecialchars($error); ?>'); }, 100);
+        <?php endif; ?>
+      </script>
+
+      <footer class="footer">
         <div class="container">
             <p>&copy; 2025 SENAC - Sistema de Reservas. Todos os direitos reservados.</p>
         </div>
@@ -251,6 +259,86 @@ function user_initials(string $name): string {
                 if (e.target === modal) closeModal();
             });
         });
+
+        function viewProfile(userId) {
+            const collaborators = <?php echo json_encode($collaborators); ?>;
+            const collab = collaborators.find(c => c.id == userId);
+            if (!collab) return;
+
+            const content = `
+                <div style="text-align:center; margin-bottom:24px;">
+                    <div style="width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg, #004A8D, #3A7BB9); display:inline-flex; align-items:center; justify-content:center; font-size:32px; font-weight:bold; color:white; margin-bottom:16px;">
+                        ${collab.name.charAt(0).toUpperCase()}
+                    </div>
+                    <h3 style="margin-bottom:8px;">${collab.name}</h3>
+                    <span style="padding:6px 12px; background:#f0f9ff; color:#004A8D; border-radius:6px; font-size:12px; font-weight:600;">
+                        ${collab.role_name === 'administrador' ? 'Gestor/Admin' : 'Colaborador'}
+                    </span>
+                </div>
+                <div style="border-top:1px solid var(--gray-100); padding-top:16px;">
+                    <div style="margin-bottom:12px;">
+                        <strong style="color:#6b7280; font-size:12px;">E-mail:</strong>
+                        <div style="font-size:16px; margin-top:4px;">${collab.email}</div>
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <strong style="color:#6b7280; font-size:12px;">Status:</strong>
+                        <div style="margin-top:4px;">
+                            <span style="padding:4px 12px; background:#dcfce7; color:#166534; border-radius:4px; font-size:12px; font-weight:600;">Ativo</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const modal = `
+                <div style="position:fixed; inset:0; background:rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; z-index:2000;" onclick="if(event.target===this) this.remove()">
+                    <div style="background:#fff; width:100%; max-width:500px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.2); padding:24px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                            <h3 style="margin:0;">Perfil do Usuário</h3>
+                            <button onclick="this.closest('[style*=position]').remove()" style="background:none; border:none; font-size:24px; cursor:pointer; color:#6b7280;">&times;</button>
+                        </div>
+                        ${content}
+                        <div style="border-top:1px solid var(--gray-100); margin-top:16px; padding-top:16px;">
+                            <button onclick="this.closest('[style*=position]').remove()" style="width:100%; padding:10px; background:#004A8D; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Fechar</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modal);
+        }
+
+        function editRole(userId, userName, currentRole) {
+            const modalHtml = `
+                <div style="position:fixed; inset:0; background:rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; z-index:2000;" id="editRoleModal" onclick="if(event.target===this) closeEditModal()">
+                    <div style="background:#fff; width:100%; max-width:500px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.2); padding:24px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                            <h3 style="margin:0;">Editar Cargo de ${userName}</h3>
+                            <button onclick="closeEditModal()" style="background:none; border:none; font-size:24px; cursor:pointer; color:#6b7280;">&times;</button>
+                        </div>
+                        <form id="editRoleForm" method="post" action="../actions/remove_role.php">
+                            <input type="hidden" name="user_id" value="${userId}">
+                            <div style="margin-bottom:16px;">
+                                <label style="display:block; font-weight:600; margin-bottom:8px;">Alterar Cargo Para:</label>
+                                <select name="role_name" id="roleSelect" style="width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:8px; background:#f9fafb;">
+                                    <option value="">Remover cargo (tornar visualizador)</option>
+                                    <option value="colaborador" ${currentRole === 'colaborador' ? 'selected' : ''}>Colaborador</option>
+                                    <option value="administrador" ${currentRole === 'administrador' ? 'selected' : ''}>Administrador</option>
+                                </select>
+                            </div>
+                            <div style="border-top:1px solid var(--gray-100); margin-top:20px; padding-top:16px; display:flex; gap:8px; justify-content:flex-end;">
+                                <button type="button" onclick="closeEditModal()" style="padding:10px 20px; background:#f3f4f6; color:#374151; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Cancelar</button>
+                                <button type="submit" style="padding:10px 20px; background:#004A8D; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Salvar Alterações</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        function closeEditModal() {
+            const modal = document.getElementById('editRoleModal');
+            if (modal) modal.remove();
+        }
     </script>
 </body>
 </html>

@@ -63,12 +63,12 @@ while ($day <= $lastDayOfMonth) {
     $day->modify('+1 day');
 }
 
-// Buscar TODAS as reservas para renderização client-side
+// Buscar TODAS as reservas para renderização client-side (incluindo canceladas, apenas futuras e hoje)
 $stmt = $pdo->prepare("SELECT r.*, s.name AS space_name, u.name AS requester_name, u.email AS requester_email
                          FROM reservas r
                          LEFT JOIN spaces s ON s.id = r.space_id
                          LEFT JOIN users u ON u.id = r.created_by
-                         WHERE r.status IN ('reservado', 'proposta') AND r.date >= CURDATE()
+                         WHERE r.status IN ('reservado', 'proposta', 'cancelado') AND r.date >= CURDATE()
                          ORDER BY r.date ASC");
 $stmt->execute();
 $allCalendarReservations = $stmt->fetchAll();
@@ -83,7 +83,7 @@ foreach ($allCalendarReservations as $r) {
     $reservationsByDate[$dayNum]++;
 }
 
-// Reservas pendentes (propostas)
+// Reservas pendentes (propostas) - não incluir canceladas
 $stmt = $pdo->prepare("SELECT r.*, s.name AS space_name, u.name AS requester_name 
                          FROM reservas r
                          LEFT JOIN spaces s ON s.id = r.space_id
@@ -93,6 +93,17 @@ $stmt = $pdo->prepare("SELECT r.*, s.name AS space_name, u.name AS requester_nam
                          LIMIT 5");
 $stmt->execute();
 $pendingActions = $stmt->fetchAll();
+
+// Reservas recentes (incluindo canceladas)
+$stmt = $pdo->prepare("SELECT r.*, s.name AS space_name, u.name AS requester_name 
+                         FROM reservas r
+                         LEFT JOIN spaces s ON s.id = r.space_id
+                         LEFT JOIN users u ON u.id = r.created_by
+                         WHERE r.status IN ('reservado', 'cancelado')
+                         ORDER BY r.date DESC, r.time_start DESC
+                         LIMIT 5");
+$stmt->execute();
+$recentReservations = $stmt->fetchAll();
 
 function user_initials(string $name): string
 {
@@ -114,6 +125,7 @@ function user_initials(string $name): string
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard - Sistema SENAC</title>
+  <link rel="icon" type="image/png" href="./logo.png">
   <link rel="stylesheet" href="./css/comum.css" />
   <link rel="stylesheet" href="./css/dashboard.css" />
 </head>
@@ -123,7 +135,7 @@ function user_initials(string $name): string
     <div class="container">
       <div class="header-top">
         <div class="logo">
-          <div class="logo-icon"><img src="./imagem.jpg" alt="Senac" style="width: 120px; height: 75px;">
+          <div class="logo-icon"><img src="./logo.png" alt="Senac" style="width: 120px; height: 75px;">
           </div>
           <div class="logo-text">
             <h1>SENAC</h1>
@@ -140,7 +152,7 @@ function user_initials(string $name): string
               </div>
               <span aria-hidden="true">▾</span>
             </button>
-            <div class="user-menu-dropdown" style="position:absolute; right:0; top:calc(100% + 8px); background:#f6f8ff; border:1px solid var(--gray-100); box-shadow: 0 4px 12px rgba(0,0,0,.08); border-radius:8px; padding:6px; min-width:160px; display:none; z-index:1000;">
+            <div class="user-menu-dropdown" style="position:absolute; right:0; top:calc(100% + 8px); background:#f6f8ff; border:1px solid var(--gray-100); box-shadow: 0 4px 12px rgba(0,0,0,.08); border-radius:8px; padding:6px; min-width:160px; display:none; z-index:1000; color:var(--gray-800);">
               <a href="./logout.php" class="user-menu-item" style="display:block; padding:8px 10px; border-radius:6px; color:inherit; text-decoration:none;">Sair</a>
             </div>
           </div>
@@ -164,8 +176,6 @@ function user_initials(string $name): string
         <div>
           <h2 class="page-title">Dashboard</h2>
           <p class="page-subtitle">Bem-vindo ao Sistema de Reservas SENAC</p>
-          <?php if (!empty($success)): ?><div class="stat-badge stat-badge-success" style="margin-top:8px; display:inline-block;"><?php echo htmlspecialchars($success); ?></div><?php endif; ?>
-          <?php if (!empty($error)): ?><div class="stat-badge stat-badge-warning" style="margin-top:8px; display:inline-block;"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
         </div>
         <div class="page-actions">
           <button class="btn btn-secondary" data-action="refresh">
@@ -307,9 +317,27 @@ function user_initials(string $name): string
                     if ($hasReservations) $classes .= ' calendar-day-reserved';
                     $dateStr = $selectedYear . '-' . str_pad($selectedMonth, 2, '0', STR_PAD_LEFT) . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
                     
+                    // Verificar se tem cancelamentos nesta data
+                    $hasCanceled = false;
+                    if ($hasReservations) {
+                        foreach ($allCalendarReservations as $r) {
+                            if ($r['date'] === $dateStr && $r['status'] === 'cancelado') {
+                                $hasCanceled = true;
+                                break;
+                            }
+                        }
+                    }
+                    
                     echo '<div class="' . $classes . '" data-day="' . $day . '" data-date="' . $dateStr . '">' . $day;
                     if ($hasReservations) {
-                        echo '<span class="day-indicator" title="' . $reservationsByDate[$day] . ' reserva(s)"></span>';
+                        if ($hasCanceled) {
+                            echo '<div style="position:absolute; bottom:2px; left:0; right:0; display:flex; justify-content:space-between; padding:0 8px;">';
+                            echo '<span class="day-indicator" style="background:#f59e0b; position:static;" title="' . $reservationsByDate[$day] . ' reserva(s)"></span>';
+                            echo '<span class="day-indicator" style="background:#dc2626; position:static;" title="Reservas canceladas"></span>';
+                            echo '</div>';
+                        } else {
+                            echo '<span class="day-indicator" title="' . $reservationsByDate[$day] . ' reserva(s)"></span>';
+                        }
                     }
                     echo '</div>';
                 }
@@ -420,6 +448,18 @@ function user_initials(string $name): string
     </div>
   </footer>
 
+  <script src="./js/toast.js"></script>
+
+  <!-- Sistema de toasts -->
+  <script>
+    <?php if (!empty($success)): ?>
+    setTimeout(() => { if (window.Toast) window.Toast.success('<?php echo htmlspecialchars($success); ?>'); }, 100);
+    <?php endif; ?>
+    <?php if (!empty($error)): ?>
+    setTimeout(() => { if (window.Toast) window.Toast.error('<?php echo htmlspecialchars($error); ?>'); }, 100);
+    <?php endif; ?>
+  </script>
+
   <!-- Modal Calendário -->
   <div id="calendarModal" style="position:fixed; inset:0; background:rgba(0,0,0,.4); display:none; align-items:center; justify-content:center; z-index:2000;">
     <div style="background:#fff; width:100%; max-width:600px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.2); max-height:80vh; overflow-y:auto;">
@@ -510,12 +550,14 @@ function user_initials(string $name): string
                   <div style="font-weight:600; margin-bottom:4px;">${res.space_name || 'Espaço'}${res.request_title ? ' - ' + res.request_title : ''}</div>
                   <div style="font-size:13px; color:#6b7280;">${res.time_start ? res.time_start.substring(0,5) : ''} - ${res.time_end ? res.time_end.substring(0,5) : ''}</div>
                   ${res.requester_name ? `<div style="font-size:13px; color:#6b7280;">Por: ${res.requester_name}</div>` : ''}
-                  <div style="margin-top:8px;">
+                  <div style="margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                     <span style="padding:4px 8px; border-radius:4px; font-size:11px; font-weight:600; 
-                      background: ${res.status === 'reservado' ? '#dcfce7' : '#fef3c7'}; 
-                      color: ${res.status === 'reservado' ? '#166534' : '#92400e'};">
-                      ${res.status === 'reservado' ? '✅ Aprovada' : '⏳ Pendente'}
+                      background: ${res.status === 'reservado' ? '#dcfce7' : res.status === 'proposta' ? '#fef3c7' : res.status === 'cancelado' ? '#fef2f2' : '#f3f4f6'}; 
+                      color: ${res.status === 'reservado' ? '#166534' : res.status === 'proposta' ? '#92400e' : res.status === 'cancelado' ? '#dc2626' : '#374151'};">
+                      ${res.status === 'reservado' ? '✅ Aprovada' : res.status === 'proposta' ? '⏳ Pendente' : res.status === 'cancelado' ? '❌ Cancelada' : res.status}
                     </span>
+                    ${res.status === 'reservado' ? `<button onclick="cancelReservation(${res.id})" style="padding:4px 12px; background:#fee2e2; color:#dc2626; border:none; border-radius:4px; cursor:pointer; font-size:11px; font-weight:600;">Cancelar</button>` : ''}
+                    ${res.status === 'cancelado' ? `<button onclick="showCancelReason('${(res.cancel_reason || '').replace(/'/g, "\\'")}')" style="padding:4px 12px; background:#f9fafb; color:#6b7280; border:1px solid #e5e7eb; border-radius:4px; cursor:pointer; font-size:11px; font-weight:600;">👁️ Justificativa</button>` : ''}
                   </div>
                 </div>
               `;
@@ -576,6 +618,7 @@ function user_initials(string $name): string
         const dateStr = year + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0');
         const dayReservations = allCalendarReservations.filter(r => r.date === dateStr && r.status !== 'livre');
         const hasReservations = dayReservations.length > 0;
+        const hasCanceled = dayReservations.some(r => r.status === 'cancelado');
         
         let classes = 'calendar-day';
         if (isToday) classes += ' calendar-day-today';
@@ -583,7 +626,14 @@ function user_initials(string $name): string
         
         html += `<div class="${classes}" data-day="${day}" data-date="${dateStr}">${day}`;
         if (hasReservations) {
-          html += `<span class="day-indicator" title="${dayReservations.length} reserva(s)"></span>`;
+          if (hasCanceled) {
+            html += '<div style="position:absolute; bottom:2px; left:0; right:0; display:flex; justify-content:center; padding:0 8px;align-items: center;">';
+            html += `<span class="day-indicator" style="background:#f59e0b; position:static; margin-right: 3px; margin-left: 6px;" title="${dayReservations.length} reserva(s)"></span>`;
+            html += '<span class="day-indicator" style="background:#dc2626; position:static;" title="Reservas canceladas"></span>';
+            html += '</div>';
+          } else {
+            html += `<span class="day-indicator" title="${dayReservations.length} reserva(s)"></span>`;
+          }
         }
         html += '</div>';
       }
@@ -617,12 +667,14 @@ function user_initials(string $name): string
                   <div style="font-weight:600; margin-bottom:4px;">${res.space_name || 'Espaço'}${res.request_title ? ' - ' + res.request_title : ''}</div>
                   <div style="font-size:13px; color:#6b7280;">${res.time_start ? res.time_start.substring(0,5) : ''} - ${res.time_end ? res.time_end.substring(0,5) : ''}</div>
                   ${res.requester_name ? `<div style="font-size:13px; color:#6b7280;">Por: ${res.requester_name}</div>` : ''}
-                  <div style="margin-top:8px;">
+                  <div style="margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                     <span style="padding:4px 8px; border-radius:4px; font-size:11px; font-weight:600; 
-                      background: ${res.status === 'reservado' ? '#dcfce7' : '#fef3c7'}; 
-                      color: ${res.status === 'reservado' ? '#166534' : '#92400e'};">
-                      ${res.status === 'reservado' ? '✅ Aprovada' : '⏳ Pendente'}
+                      background: ${res.status === 'reservado' ? '#dcfce7' : res.status === 'proposta' ? '#fef3c7' : res.status === 'cancelado' ? '#fef2f2' : '#f3f4f6'}; 
+                      color: ${res.status === 'reservado' ? '#166534' : res.status === 'proposta' ? '#92400e' : res.status === 'cancelado' ? '#dc2626' : '#374151'};">
+                      ${res.status === 'reservado' ? '✅ Aprovada' : res.status === 'proposta' ? '⏳ Pendente' : res.status === 'cancelado' ? '❌ Cancelada' : res.status}
                     </span>
+                    ${res.status === 'reservado' ? `<button onclick="cancelReservation(${res.id})" style="padding:4px 12px; background:#fee2e2; color:#dc2626; border:none; border-radius:4px; cursor:pointer; font-size:11px; font-weight:600;">Cancelar</button>` : ''}
+                    ${res.status === 'cancelado' ? `<button onclick="showCancelReason('${(res.cancel_reason || '').replace(/'/g, "\\'")}')" style="padding:4px 12px; background:#f9fafb; color:#6b7280; border:1px solid #e5e7eb; border-radius:4px; cursor:pointer; font-size:11px; font-weight:600;">👁️ Justificativa</button>` : ''}
                   </div>
                 </div>
               `;
@@ -639,17 +691,112 @@ function user_initials(string $name): string
     }
     
     function cancelReservation(reservationId) {
-      if (confirm('Deseja realmente cancelar esta reserva?')) {
-        fetch('../actions/cancel_reserva.php?id=' + reservationId, {
-          method: 'POST'
+      const modal = `
+        <div style="position:fixed; inset:0; background:rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; z-index:3000;">
+          <div style="background:#fff; width:100%; max-width:500px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.2); padding:24px;">
+            <h3 style="margin-bottom:16px;">Justificar Cancelamento</h3>
+            <p style="margin-bottom:16px; color:#6b7280; font-size:14px;">Por favor, informe o motivo do cancelamento:</p>
+            <form id="cancelForm">
+              <textarea name="reason" id="cancelReason" required placeholder="Ex: Evento foi adiado..." style="width:100%; min-height:100px; padding:12px; border:1px solid #e5e7eb; border-radius:8px; resize:vertical;" required></textarea>
+              <div style="display:flex; gap:8px; margin-top:20px; justify-content:flex-end;">
+                <button type="button" onclick="this.closest('[style*=z-index:3000]').remove()" style="padding:10px 20px; background:#f3f4f6; color:#374151; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Cancelar</button>
+                <button type="submit" style="padding:10px 20px; background:#dc2626; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Confirmar Cancelamento</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', modal);
+      
+      document.getElementById('cancelForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const reason = document.getElementById('cancelReason').value.trim();
+        
+        if (!reason) {
+          if (window.Toast) {
+            window.Toast.error('Justificativa é obrigatória');
+          } else {
+            alert('Justificativa é obrigatória');
+          }
+          return;
+        }
+        
+        fetch('actions/cancel_reserva.php?id=' + reservationId, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: 'reason=' + encodeURIComponent(reason)
         })
         .then(response => response.json())
         .then(data => {
+          closeCancelModal();
+          document.querySelector('[style*="z-index:3000"]')?.remove();
           if (data.success) {
-            window.location.reload();
+            if (window.Toast) {
+              window.Toast.success('Reserva cancelada com sucesso!');
+              setTimeout(() => window.location.reload(), 1500);
+            } else {
+              alert('Reserva cancelada com sucesso!');
+              window.location.reload();
+            }
           } else {
-            alert('Erro ao cancelar: ' + data.message);
+            if (window.Toast) {
+              window.Toast.error('Erro: ' + data.message);
+            } else {
+              alert('Erro: ' + data.message);
+            }
           }
+        })
+        .catch(error => {
+          closeCancelModal();
+          if (window.Toast) {
+            window.Toast.error('Erro ao cancelar reserva');
+          } else {
+            alert('Erro ao cancelar reserva');
+          }
+        });
+      });
+    }
+    
+    function closeCancelModal() {
+      const modal = document.querySelector('[style*="z-index:3000"]');
+      if (modal) modal.remove();
+    }
+    
+    function showCancelReason(reason) {
+      const modalHtml = `
+        <div id="justificationModal" style="position:fixed; inset:0; background:rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; z-index:2000;">
+          <div style="background:#fff; width:100%; max-width:500px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.2); padding:24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <h3 style="margin:0; color:#dc2626;">❌ Justificativa do Cancelamento</h3>
+              <button id="closeJustificationModal" style="background:none; border:none; font-size:24px; cursor:pointer; color:#6b7280;">&times;</button>
+            </div>
+            <div style="padding:16px; background:#fef2f2; border-left:4px solid #dc2626; border-radius:4px;">
+              <p style="margin:0; color:#991b1b; line-height:1.6;">${reason || 'Nenhuma justificativa informada.'}</p>
+            </div>
+            <div style="margin-top:20px; text-align:right;">
+              <button onclick="closeJustificationModalFn()" style="padding:10px 20px; background:#dc2626; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Fechar</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      
+      function closeJustificationModalFn() {
+        const modal = document.getElementById('justificationModal');
+        if (modal) modal.remove();
+      }
+      
+      window.closeJustificationModalFn = closeJustificationModalFn;
+      
+      const closeBtn = document.getElementById('closeJustificationModal');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', closeJustificationModalFn);
+      }
+      
+      const modal = document.getElementById('justificationModal');
+      if (modal) {
+        modal.addEventListener('click', function(e) {
+          if (e.target === modal) closeJustificationModalFn();
         });
       }
     }

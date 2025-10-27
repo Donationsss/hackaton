@@ -46,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro - Sistema SENAC</title>
+    <link rel="icon" type="image/png" href="./logo.png">
     <link rel="stylesheet" href="./css/comum.css">
     <link rel="stylesheet" href="./css/auth.css">
 </head>
@@ -56,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="auth-banner">
                 <div class="auth-banner-content">
                     <div class="auth-logo">
-                        <img src="./imagem.jpg" alt="SENAC" style="max-width: 150px; height: auto;">
+                        <img src="./logo.png" alt="SENAC" style="max-width: 150px; height: auto;">
                     </div>
                     <h2 class="auth-banner-title">Junte-se a nós!</h2>
                     <p class="auth-banner-text">

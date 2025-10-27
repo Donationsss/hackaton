@@ -37,6 +37,7 @@ function user_initials(string $name): string
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reservas Disponíveis - Sistema SENAC</title>
+  <link rel="icon" type="image/png" href="./logo.png">
   <link rel="stylesheet" href="./css/comum.css" />
   <link rel="stylesheet" href="./css/dashboard.css" />
 </head>
@@ -46,7 +47,7 @@ function user_initials(string $name): string
     <div class="container">
       <div class="header-top">
         <div class="logo">
-          <div class="logo-icon"><img src="./imagem.jpg" alt="Senac" style="width: 120px; height: 75px;"></div>
+          <div class="logo-icon"><img src="./logo.png" alt="Senac" style="width: 120px; height: 75px;"></div>
           <div class="logo-text">
             <h1>SENAC</h1>
             <p>Sistema de Reservas</p>
@@ -71,6 +72,8 @@ function user_initials(string $name): string
 
       <nav class="nav">
         <a href="./colaboradores.php" class="nav-link active">📅 Solicitar Reserva</a>
+        <a href="./pages-colaborador/espacos.php" class="nav-link">🏢 Espaços</a>
+        <a href="./pages-colaborador/minhas-reservas.php" class="nav-link">📋 Minhas Reservas</a>
       </nav>
     </div>
   </header>

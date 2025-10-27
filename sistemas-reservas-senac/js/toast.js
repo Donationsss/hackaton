@@ -2,7 +2,7 @@
  * Sistema de Toast Notifications
  */
 const Toast = {
-    show(message, type = 'info', duration = 4000) {
+    show(message, type = 'info', duration = 3000) {
         const container = this.getContainer();
         
         const toast = document.createElement('div');

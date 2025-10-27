@@ -7,12 +7,12 @@ $user = current_user();
 $success = $_GET['success'] ?? '';
 $error = $_GET['error'] ?? '';
 
-// Buscar todas as reservas (solicitadas por colaboradores)
+// Buscar todas as reservas (incluindo canceladas)
 $stmt = $pdo->prepare("SELECT r.*, s.name AS space_name, u.name AS requester_name, u.email AS requester_email
                          FROM reservas r
                          LEFT JOIN spaces s ON s.id = r.space_id
                          LEFT JOIN users u ON u.id = r.created_by
-                         WHERE r.status IN ('proposta', 'reservado')
+                         WHERE r.status IN ('proposta', 'reservado', 'cancelado')
                          ORDER BY r.date DESC, r.time_start DESC");
 $stmt->execute();
 $reservations = $stmt->fetchAll();
@@ -41,6 +41,7 @@ function user_initials(string $name): string {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reservas - Sistema SENAC</title>
+    <link rel="icon" type="image/png" href="../logo.png">
     <link rel="stylesheet" href="../css/comum.css">
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="../css/paginas.css">
@@ -52,7 +53,7 @@ function user_initials(string $name): string {
         <div class="container">
             <div class="header-top">
                 <div class="logo">
-                    <div class="logo-icon"><img src="../imagem.jpg" alt="Senac" style="width: 120px; height: 75px;"></div>
+                    <div class="logo-icon"><img src="../logo.png" alt="Senac" style="width: 120px; height: 75px;"></div>
                     <div class="logo-text">
                         <h1>SENAC</h1>
                         <p>Sistema de Reservas</p>
@@ -68,7 +69,7 @@ function user_initials(string $name): string {
                             </div>
                             <span aria-hidden="true">▾</span>
                         </button>
-                        <div class="user-menu-dropdown" style="position:absolute; right:0; top:calc(100% + 8px); background:#f6f8ff; border:1px solid var(--gray-100); box-shadow: 0 4px 12px rgba(0,0,0,.08); border-radius:8px; padding:6px; min-width:160px; display:none; z-index:1000;">
+                        <div class="user-menu-dropdown" style="position:absolute; right:0; top:calc(100% + 8px); background:#f6f8ff; border:1px solid var(--gray-100); box-shadow: 0 4px 12px rgba(0,0,0,.08); border-radius:8px; padding:6px; min-width:160px; display:none; z-index:1000; color:var(--gray-800);">
                             <a href="../logout.php" class="user-menu-item" style="display:block; padding:8px 10px; border-radius:6px; color:inherit; text-decoration:none;">Sair</a>
                         </div>
                     </div>
@@ -92,21 +93,15 @@ function user_initials(string $name): string {
                 <div>
                     <h2 class="page-title">Gerenciar Reservas</h2>
                     <p class="page-subtitle">Visualize e gerencie todas as reservas de espaços</p>
-                    <?php if (!empty($success)): ?>
-                        <div class="stat-badge stat-badge-success" style="margin-top:8px; display:inline-block;">
-                            <?php echo htmlspecialchars($success); ?>
-                        </div>
-                    <?php endif; ?>
-                    <?php if (!empty($error)): ?>
-                        <div class="stat-badge stat-badge-warning" style="margin-top:8px; display:inline-block;">
-                            <?php echo htmlspecialchars($error); ?>
-                        </div>
-                    <?php endif; ?>
                 </div>
-                <div class="page-actions">
+                <div class="page-actions" style="display:flex; gap:8px;">
                     <button class="btn btn-primary" data-action="create-slot">
                         <span class="btn-icon">➕</span>
                         Criar Slot Livre
+                    </button>
+                    <button class="btn btn-danger" data-action="remove-slot">
+                        <span class="btn-icon">➖</span>
+                        Retirar Slot Livre
                     </button>
                 </div>
             </div>
@@ -176,6 +171,8 @@ function user_initials(string $name): string {
                                                 <span class="badge badge-approved">Aprovada</span>
                                             <?php elseif ($r['status'] == 'proposta'): ?>
                                                 <span class="badge badge-pending">Pendente</span>
+                                            <?php elseif ($r['status'] == 'cancelado'): ?>
+                                                <span class="badge" style="background:#fef2f2; color:#dc2626;">Cancelada</span>
                                             <?php else: ?>
                                                 <span class="badge badge-info"><?php echo htmlspecialchars($r['status']); ?></span>
                                             <?php endif; ?>
@@ -267,6 +264,50 @@ function user_initials(string $name): string {
         </div>
     </div>
 
+    <!-- Modal Retirar Slot Livre -->
+    <div id="removeSlotModal" style="position:fixed; inset:0; background:rgba(0,0,0,.4); display:none; align-items:center; justify-content:center; z-index:2000;">
+        <div style="background:#fff; width:100%; max-width:520px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.2);">
+            <div style="padding:16px 20px; border-bottom:1px solid var(--gray-100); display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="margin:0;">➖ Retirar Slot Livre</h3>
+                <button id="closeRemoveSlotModal" class="btn btn-sm btn-secondary">Fechar</button>
+            </div>
+            <form method="post" action="../actions/remove_slot.php">
+                <div style="padding:16px 20px;">
+                    <div style="margin-bottom:16px; padding:12px; background:#fef2f2; border-left:4px solid #dc2626; border-radius:4px;">
+                        <p style="margin:0; font-size:13px; color:#991b1b;">Selecione o slot livre que deseja remover do sistema.</p>
+                    </div>
+                    
+                    <div style="margin-bottom:4px;">
+                        <label style="display:block; font-weight:600; margin-bottom:6px;">Selecione o Slot Livre *</label>
+                        <select name="slot_id" id="slotSelect" required style="width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:8px; background:#fff;">
+                            <option value="">Selecione um slot...</option>
+                            <?php 
+                            $stmt = $pdo->prepare("SELECT r.*, s.name AS space_name 
+                                                     FROM reservas r
+                                                     LEFT JOIN spaces s ON s.id = r.space_id
+                                                     WHERE r.status = 'livre' AND r.date >= CURDATE()
+                                                     ORDER BY r.date, r.time_start");
+                            $stmt->execute();
+                            $freeSlots = $stmt->fetchAll();
+                            foreach ($freeSlots as $slot):
+                            ?>
+                                <option value="<?php echo (int)$slot['id']; ?>">
+                                    <?php echo htmlspecialchars($slot['space_name'] ?? 'Espaço'); ?> - 
+                                    <?php echo htmlspecialchars(date('d/m/Y', strtotime($slot['date']))); ?> 
+                                    <?php echo htmlspecialchars(substr($slot['time_start'], 0, 5)); ?>-<?php echo htmlspecialchars(substr($slot['time_end'], 0, 5)); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                <div style="padding:12px 20px; border-top:1px solid var(--gray-100); display:flex; gap:8px; justify-content:flex-end;">
+                    <button type="button" id="cancelRemoveSlot" class="btn btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Confirmar Remoção</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Dropdown perfil
@@ -326,12 +367,17 @@ function user_initials(string $name): string {
                                 <strong style="display:block; color:#6b7280; font-size:12px; margin-bottom:4px;">Status:</strong>
                                 <div style="font-size:16px;">
                                     <span style="padding:6px 12px; border-radius:6px; font-size:12px; font-weight:600; 
-                                        background: ${reservation.status === 'reservado' ? '#dcfce7' : reservation.status === 'proposta' ? '#fef3c7' : '#f3f4f6'}; 
-                                        color: ${reservation.status === 'reservado' ? '#166534' : reservation.status === 'proposta' ? '#92400e' : '#374151'};">
-                                        ${reservation.status === 'reservado' ? '✅ Aprovada' : reservation.status === 'proposta' ? '⏳ Pendente' : reservation.status}
+                                        background: ${reservation.status === 'reservado' ? '#dcfce7' : reservation.status === 'proposta' ? '#fef3c7' : reservation.status === 'cancelado' ? '#fef2f2' : '#f3f4f6'}; 
+                                        color: ${reservation.status === 'reservado' ? '#166534' : reservation.status === 'proposta' ? '#92400e' : reservation.status === 'cancelado' ? '#dc2626' : '#374151'};">
+                                        ${reservation.status === 'reservado' ? '✅ Aprovada' : reservation.status === 'proposta' ? '⏳ Pendente' : reservation.status === 'cancelado' ? '❌ Cancelada' : reservation.status}
                                     </span>
                                 </div>
                             </div>
+                            ${reservation.status === 'cancelado' && reservation.cancel_reason ? `
+                            <div style="margin-bottom:12px; padding:12px; background:#fef2f2; border-left:4px solid #dc2626; border-radius:4px;">
+                                <strong style="display:block; color:#dc2626; font-size:12px; margin-bottom:4px;">Justificativa do Cancelamento:</strong>
+                                <div style="font-size:14px; color:#991b1b;">${reservation.cancel_reason}</div>
+                            </div>` : ''}
                             ${reservation.request_title ? `
                             <div style="margin-bottom:12px;">
                                 <strong style="display:block; color:#6b7280; font-size:12px; margin-bottom:4px;">Título:</strong>
@@ -372,27 +418,36 @@ function user_initials(string $name): string {
             createSlotModal.addEventListener('click', function(e) {
                 if (e.target === createSlotModal) closeCreateSlotModalFn();
             });
+
+            // Modal Retirar Slot
+            const removeSlotBtn = document.querySelector('[data-action="remove-slot"]');
+            const removeSlotModal = document.getElementById('removeSlotModal');
+            const closeRemoveSlotModalBtn = document.getElementById('closeRemoveSlotModal');
+            const cancelRemoveSlot = document.getElementById('cancelRemoveSlot');
+
+            function openRemoveSlotModal() {
+                removeSlotModal.style.display = 'flex';
+            }
+
+            function closeRemoveSlotModalFn() {
+                removeSlotModal.style.display = 'none';
+            }
+
+            if (removeSlotBtn) removeSlotBtn.addEventListener('click', openRemoveSlotModal);
+            if (closeRemoveSlotModalBtn) closeRemoveSlotModalBtn.addEventListener('click', closeRemoveSlotModalFn);
+            if (cancelRemoveSlot) cancelRemoveSlot.addEventListener('click', closeRemoveSlotModalFn);
+
+            removeSlotModal.addEventListener('click', function(e) {
+                if (e.target === removeSlotModal) closeRemoveSlotModalFn();
+            });
         });
         
         // Sistema de toasts
         <?php if (!empty($success)): ?>
-        setTimeout(() => {
-            if (window.Toast) {
-                window.Toast.success('<?php echo htmlspecialchars($success); ?>');
-            } else {
-                alert('<?php echo htmlspecialchars($success); ?>');
-            }
-        }, 100);
+        setTimeout(() => { if (window.Toast) window.Toast.success('<?php echo htmlspecialchars($success); ?>'); }, 100);
         <?php endif; ?>
-        
         <?php if (!empty($error)): ?>
-        setTimeout(() => {
-            if (window.Toast) {
-                window.Toast.error('<?php echo htmlspecialchars($error); ?>');
-            } else {
-                alert('<?php echo htmlspecialchars($error); ?>');
-            }
-        }, 100);
+        setTimeout(() => { if (window.Toast) window.Toast.error('<?php echo htmlspecialchars($error); ?>'); }, 100);
         <?php endif; ?>
     </script>
     <script src="../js/toast.js"></script>

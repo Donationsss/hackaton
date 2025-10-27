@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $id = (int)($_GET['id'] ?? 0);
+$reason = trim($_POST['reason'] ?? '');
 
 if ($id <= 0) {
     header('Content-Type: application/json');
@@ -17,10 +18,16 @@ if ($id <= 0) {
     exit;
 }
 
+if (empty($reason)) {
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Justificativa obrigatória']);
+    exit;
+}
+
 try {
-    // Atualizar status para 'livre' (cancela a reserva)
-    $stmt = $pdo->prepare("UPDATE reservas SET status='livre', request_title=NULL, request_note=NULL, created_by=NULL WHERE id=? AND status IN ('proposta', 'reservado')");
-    $stmt->execute([$id]);
+    // Atualizar status para 'cancelado' e salvar a justificativa
+    $stmt = $pdo->prepare("UPDATE reservas SET status='cancelado', cancel_reason=? WHERE id=? AND status IN ('proposta', 'reservado')");
+    $stmt->execute([$reason, $id]);
     
     if ($stmt->rowCount() === 0) {
         header('Content-Type: application/json');

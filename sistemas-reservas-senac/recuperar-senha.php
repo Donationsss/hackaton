@@ -25,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recuperar Senha - Sistema SENAC</title>
+    <link rel="icon" type="image/png" href="./logo.png">
     <link rel="stylesheet" href="./css/comum.css">
     <link rel="stylesheet" href="./css/auth.css">
 </head>
@@ -35,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="auth-form-container">
                 <div class="auth-form-header">
                     <div class="auth-logo" style="text-align: center; margin-bottom: 24px;">
-                        <img src="./imagem.jpg" alt="SENAC" style="max-width: 120px; height: auto;">
+                        <img src="./logo.png" alt="SENAC" style="max-width: 120px; height: auto;">
                     </div>
                     <h1 class="auth-form-title" style="text-align: center;">Recuperar Senha</h1>
                     <p class="auth-form-subtitle" style="text-align: center;">
