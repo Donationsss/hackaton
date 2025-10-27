@@ -49,10 +49,13 @@ $stmt = $pdo->prepare("SELECT * FROM spaces ORDER BY name LIMIT 4");
 $stmt->execute();
 $spaces = $stmt->fetchAll();
 
-// Calendário - gerar dias do mês atual
+// Calendário - gerar dias do mês selecionado (ou mês atual)
 $today = new DateTime();
-$firstDayOfMonth = new DateTime($today->format('Y-m-01'));
-$lastDayOfMonth = new DateTime($today->format('Y-m-t'));
+$selectedMonth = isset($_GET['month']) ? (int)$_GET['month'] : (int)$today->format('m');
+$selectedYear = isset($_GET['year']) ? (int)$_GET['year'] : (int)$today->format('Y');
+$displayDate = new DateTime("$selectedYear-$selectedMonth-01");
+$firstDayOfMonth = new DateTime($displayDate->format('Y-m-01'));
+$lastDayOfMonth = new DateTime($displayDate->format('Y-m-t'));
 $calendarDays = [];
 $day = clone $firstDayOfMonth;
 while ($day <= $lastDayOfMonth) {
@@ -60,15 +63,24 @@ while ($day <= $lastDayOfMonth) {
     $day->modify('+1 day');
 }
 
-// Buscar reservas do mês atual para marcar no calendário
-$currentMonthStart = $today->format('Y-m-01');
-$currentMonthEnd = $today->format('Y-m-t');
-$stmt = $pdo->prepare("SELECT date, COUNT(*) as count FROM reservas WHERE date >= ? AND date <= ? GROUP BY date");
-$stmt->execute([$currentMonthStart, $currentMonthEnd]);
+// Buscar TODAS as reservas para renderização client-side
+$stmt = $pdo->prepare("SELECT r.*, s.name AS space_name, u.name AS requester_name, u.email AS requester_email
+                         FROM reservas r
+                         LEFT JOIN spaces s ON s.id = r.space_id
+                         LEFT JOIN users u ON u.id = r.created_by
+                         WHERE r.status IN ('reservado', 'proposta') AND r.date >= CURDATE()
+                         ORDER BY r.date ASC");
+$stmt->execute();
+$allCalendarReservations = $stmt->fetchAll();
+
+// Calcular dias com reservas para marcação inicial
 $reservationsByDate = [];
-while ($row = $stmt->fetch()) {
-    $dayNum = (int)date('d', strtotime($row['date']));
-    $reservationsByDate[$dayNum] = (int)$row['count'];
+foreach ($allCalendarReservations as $r) {
+    $dayNum = (int)date('d', strtotime($r['date']));
+    if (!isset($reservationsByDate[$dayNum])) {
+        $reservationsByDate[$dayNum] = 0;
+    }
+    $reservationsByDate[$dayNum]++;
 }
 
 // Reservas pendentes (propostas)
@@ -252,12 +264,12 @@ function user_initials(string $name): string
           <div class="card-header">
             <h3 class="card-title">📆 Calendário</h3>
             <div class="calendar-controls">
-              <button class="btn-icon" title="Mês anterior" onclick="alert('Navegação de mês em breve')">◀</button>
-              <span class="calendar-month"><?php 
+              <button class="btn-icon" title="Mês anterior" onclick="changeMonth(-1)">◀</button>
+              <span class="calendar-month" id="calendarMonth"><?php 
                 $meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-                echo $meses[(int)date('m') - 1] . ' ' . date('Y');
+                echo $meses[$selectedMonth - 1] . ' ' . $selectedYear;
               ?></span>
-              <button class="btn-icon" title="Próximo mês" onclick="alert('Navegação de mês em breve')">▶</button>
+              <button class="btn-icon" title="Próximo mês" onclick="changeMonth(1)">▶</button>
             </div>
           </div>
           <div class="card-body">
@@ -271,7 +283,7 @@ function user_initials(string $name): string
                 <div class="calendar-day-name">Sex</div>
                 <div class="calendar-day-name">Sáb</div>
               </div>
-              <div class="calendar-body">
+              <div class="calendar-body" id="calendarBody">
                 <?php
                 // Renderizar calendário
                 $firstDayOfWeek = (int)$firstDayOfMonth->format('w');
@@ -279,6 +291,7 @@ function user_initials(string $name): string
                 $todayDay = (int)$today->format('d');
                 $currentMonthNum = (int)$today->format('m');
                 $currentYearNum = (int)$today->format('Y');
+                $isCurrentMonth = ($selectedMonth == $currentMonthNum && $selectedYear == $currentYearNum);
                 
                 // Dias vazios antes do primeiro dia
                 for ($i = 0; $i < $firstDayOfWeek; $i++) {
@@ -287,13 +300,14 @@ function user_initials(string $name): string
                 
                 // Dias do mês
                 for ($day = 1; $day <= $lastDayOfMonthNum; $day++) {
-                    $isToday = $day == $todayDay;
+                    $isToday = $isCurrentMonth && $day == $todayDay;
                     $hasReservations = isset($reservationsByDate[$day]);
                     $classes = 'calendar-day';
                     if ($isToday) $classes .= ' calendar-day-today';
                     if ($hasReservations) $classes .= ' calendar-day-reserved';
+                    $dateStr = $selectedYear . '-' . str_pad($selectedMonth, 2, '0', STR_PAD_LEFT) . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
                     
-                    echo '<div class="' . $classes . '" data-day="' . $day . '">' . $day;
+                    echo '<div class="' . $classes . '" data-day="' . $day . '" data-date="' . $dateStr . '">' . $day;
                     if ($hasReservations) {
                         echo '<span class="day-indicator" title="' . $reservationsByDate[$day] . ' reserva(s)"></span>';
                     }
@@ -516,6 +530,132 @@ function user_initials(string $name): string
         });
       });
     });
+
+    // Função para navegação de meses
+    let currentMonth = <?php echo $selectedMonth; ?>;
+    let currentYear = <?php echo $selectedYear; ?>;
+    const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+    const allCalendarReservations = <?php echo json_encode($allCalendarReservations); ?>;
+    
+    function changeMonth(direction) {
+      currentMonth += direction;
+      if (currentMonth < 1) {
+        currentMonth = 12;
+        currentYear--;
+      } else if (currentMonth > 12) {
+        currentMonth = 1;
+        currentYear++;
+      }
+      
+      // Atualizar o texto do mês
+      document.getElementById('calendarMonth').textContent = monthNames[currentMonth - 1] + ' ' + currentYear;
+      
+      // Renderizar calendário
+      renderCalendar(currentMonth, currentYear);
+    }
+
+    function renderCalendar(month, year) {
+      const calendarBody = document.getElementById('calendarBody');
+      const today = new Date();
+      const firstDay = new Date(year, month - 1, 1).getDay();
+      const daysInMonth = new Date(year, month, 0).getDate();
+      
+      let html = '';
+      
+      // Dias vazios
+      for (let i = 0; i < firstDay; i++) {
+        html += '<div class="calendar-day calendar-day-empty"></div>';
+      }
+      
+      // Dias do mês
+      for (let day = 1; day <= daysInMonth; day++) {
+        const isToday = today.getDate() === day && today.getMonth() === month - 1 && today.getFullYear() === year;
+        
+        // Contar reservas neste dia
+        const dateStr = year + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+        const dayReservations = allCalendarReservations.filter(r => r.date === dateStr && r.status !== 'livre');
+        const hasReservations = dayReservations.length > 0;
+        
+        let classes = 'calendar-day';
+        if (isToday) classes += ' calendar-day-today';
+        if (hasReservations) classes += ' calendar-day-reserved';
+        
+        html += `<div class="${classes}" data-day="${day}" data-date="${dateStr}">${day}`;
+        if (hasReservations) {
+          html += `<span class="day-indicator" title="${dayReservations.length} reserva(s)"></span>`;
+        }
+        html += '</div>';
+      }
+      
+      calendarBody.innerHTML = html;
+      
+      // Reconectar eventos
+      attachCalendarDayEvents();
+    }
+
+    function attachCalendarDayEvents() {
+      
+      document.querySelectorAll('.calendar-day[data-day]').forEach(function(dayElement) {
+        dayElement.addEventListener('click', function(e) {
+          e.stopPropagation();
+          
+          if (this.classList.contains('calendar-day-empty')) return;
+          
+          const dateStr = this.dataset.date;
+          const dayReservations = allCalendarReservations.filter(r => r.date === dateStr);
+          const clickedDay = parseInt(this.dataset.day);
+
+          document.getElementById('calendarModalTitle').textContent = `Reservas do dia ${String(clickedDay).padStart(2, '0')}/${String(currentMonth).padStart(2, '0')}/${currentYear}`;
+
+          if (dayReservations.length > 0) {
+            let content = `<div style="margin-bottom:16px; color:#6b7280;">${dayReservations.length} ${dayReservations.length === 1 ? 'reserva encontrada' : 'reservas encontradas'}</div>`;
+            
+            dayReservations.forEach(function(res) {
+              content += `
+                <div style="padding:12px; background:#f9fafb; border-radius:8px; margin-bottom:12px;">
+                  <div style="font-weight:600; margin-bottom:4px;">${res.space_name || 'Espaço'}${res.request_title ? ' - ' + res.request_title : ''}</div>
+                  <div style="font-size:13px; color:#6b7280;">${res.time_start ? res.time_start.substring(0,5) : ''} - ${res.time_end ? res.time_end.substring(0,5) : ''}</div>
+                  ${res.requester_name ? `<div style="font-size:13px; color:#6b7280;">Por: ${res.requester_name}</div>` : ''}
+                  <div style="margin-top:8px;">
+                    <span style="padding:4px 8px; border-radius:4px; font-size:11px; font-weight:600; 
+                      background: ${res.status === 'reservado' ? '#dcfce7' : '#fef3c7'}; 
+                      color: ${res.status === 'reservado' ? '#166534' : '#92400e'};">
+                      ${res.status === 'reservado' ? '✅ Aprovada' : '⏳ Pendente'}
+                    </span>
+                  </div>
+                </div>
+              `;
+            });
+            
+            document.getElementById('calendarModalContent').innerHTML = content;
+          } else {
+            document.getElementById('calendarModalContent').innerHTML = '<p style="text-align:center; padding:32px;">Nenhuma reserva para este dia.</p>';
+          }
+          
+          document.getElementById('calendarModal').style.display = 'flex';
+        });
+      });
+    }
+    
+    function cancelReservation(reservationId) {
+      if (confirm('Deseja realmente cancelar esta reserva?')) {
+        fetch('../actions/cancel_reserva.php?id=' + reservationId, {
+          method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            window.location.reload();
+          } else {
+            alert('Erro ao cancelar: ' + data.message);
+          }
+        });
+      }
+    }
+    
+    // Renderizar calendário na navegação
+    renderCalendar(currentMonth, currentYear);
   </script>
 </body>
 

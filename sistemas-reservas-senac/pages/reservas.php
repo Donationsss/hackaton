@@ -4,6 +4,8 @@ require_login();
 require_role('administrador');
 
 $user = current_user();
+$success = $_GET['success'] ?? '';
+$error = $_GET['error'] ?? '';
 
 // Buscar todas as reservas (solicitadas por colaboradores)
 $stmt = $pdo->prepare("SELECT r.*, s.name AS space_name, u.name AS requester_name, u.email AS requester_email
@@ -14,6 +16,11 @@ $stmt = $pdo->prepare("SELECT r.*, s.name AS space_name, u.name AS requester_nam
                          ORDER BY r.date DESC, r.time_start DESC");
 $stmt->execute();
 $reservations = $stmt->fetchAll();
+
+// Buscar todos os espaços disponíveis
+$stmt = $pdo->prepare("SELECT * FROM spaces ORDER BY name");
+$stmt->execute();
+$spaces = $stmt->fetchAll();
 
 function user_initials(string $name): string {
     $parts = preg_split('/\s+/', trim($name));
@@ -37,6 +44,7 @@ function user_initials(string $name): string {
     <link rel="stylesheet" href="../css/comum.css">
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="../css/paginas.css">
+    <link rel="stylesheet" href="../css/toast.css">
 </head>
 
 <body>
@@ -84,8 +92,23 @@ function user_initials(string $name): string {
                 <div>
                     <h2 class="page-title">Gerenciar Reservas</h2>
                     <p class="page-subtitle">Visualize e gerencie todas as reservas de espaços</p>
+                    <?php if (!empty($success)): ?>
+                        <div class="stat-badge stat-badge-success" style="margin-top:8px; display:inline-block;">
+                            <?php echo htmlspecialchars($success); ?>
+                        </div>
+                    <?php endif; ?>
+                    <?php if (!empty($error)): ?>
+                        <div class="stat-badge stat-badge-warning" style="margin-top:8px; display:inline-block;">
+                            <?php echo htmlspecialchars($error); ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
-
+                <div class="page-actions">
+                    <button class="btn btn-primary" data-action="create-slot">
+                        <span class="btn-icon">➕</span>
+                        Criar Slot Livre
+                    </button>
+                </div>
             </div>
 
             <div class="filters-bar">
@@ -197,6 +220,53 @@ function user_initials(string $name): string {
         </div>
     </div>
 
+    <!-- Modal Criar Slot Livre -->
+    <div id="createSlotModal" style="position:fixed; inset:0; background:rgba(0,0,0,.4); display:none; align-items:center; justify-content:center; z-index:2000;">
+        <div style="background:#fff; width:100%; max-width:520px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.2);">
+            <div style="padding:16px 20px; border-bottom:1px solid var(--gray-100); display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="margin:0;">📋 Criar Slot Livre</h3>
+                <button id="closeCreateSlotModal" class="btn btn-sm btn-secondary">Fechar</button>
+            </div>
+            <form method="post" action="../actions/create_slot.php">
+                <div style="padding:16px 20px;">
+                    <div style="margin-bottom:16px; padding:12px; background:#f0f9ff; border-left:4px solid #0ea5e9; border-radius:4px;">
+                        <p style="margin:0; font-size:13px; color:#0369a1;">Um slot livre ficará disponível para colaboradores solicitarem reserva.</p>
+                    </div>
+                    
+                    <div style="margin-bottom:12px;">
+                        <label style="display:block; font-weight:600; margin-bottom:6px;">Espaço *</label>
+                        <select name="space_id" required style="width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:8px; background:#fff;">
+                            <option value="">Selecione o espaço...</option>
+                            <?php foreach ($spaces as $space): ?>
+                                <option value="<?php echo (int)$space['id']; ?>"><?php echo htmlspecialchars($space['name']); ?> (Capacidade: <?php echo (int)$space['capacity']; ?>)</option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom:12px;">
+                        <label style="display:block; font-weight:600; margin-bottom:6px;">Data *</label>
+                        <input type="date" name="date" required style="width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:8px; background:#fff;" />
+                    </div>
+                    
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:4px;">
+                        <div>
+                            <label style="display:block; font-weight:600; margin-bottom:6px;">Início *</label>
+                            <input type="time" name="time_start" required style="width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:8px; background:#fff;" />
+                        </div>
+                        <div>
+                            <label style="display:block; font-weight:600; margin-bottom:6px;">Fim *</label>
+                            <input type="time" name="time_end" required style="width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:8px; background:#fff;" />
+                        </div>
+                    </div>
+                </div>
+                <div style="padding:12px 20px; border-top:1px solid var(--gray-100); display:flex; gap:8px; justify-content:flex-end;">
+                    <button type="button" id="cancelCreateSlot" class="btn btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Criar Slot</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Dropdown perfil
@@ -280,8 +350,52 @@ function user_initials(string $name): string {
                     modal.style.display = 'flex';
                 });
             });
+
+            // Modal Criar Slot
+            const createSlotModal = document.getElementById('createSlotModal');
+            const createSlotBtn = document.querySelector('[data-action="create-slot"]');
+            const closeCreateSlotModalBtn = document.getElementById('closeCreateSlotModal');
+            const cancelCreateSlot = document.getElementById('cancelCreateSlot');
+
+            function openCreateSlotModal() {
+                createSlotModal.style.display = 'flex';
+            }
+
+            function closeCreateSlotModalFn() {
+                createSlotModal.style.display = 'none';
+            }
+
+            if (createSlotBtn) createSlotBtn.addEventListener('click', openCreateSlotModal);
+            if (closeCreateSlotModalBtn) closeCreateSlotModalBtn.addEventListener('click', closeCreateSlotModalFn);
+            if (cancelCreateSlot) cancelCreateSlot.addEventListener('click', closeCreateSlotModalFn);
+
+            createSlotModal.addEventListener('click', function(e) {
+                if (e.target === createSlotModal) closeCreateSlotModalFn();
+            });
         });
+        
+        // Sistema de toasts
+        <?php if (!empty($success)): ?>
+        setTimeout(() => {
+            if (window.Toast) {
+                window.Toast.success('<?php echo htmlspecialchars($success); ?>');
+            } else {
+                alert('<?php echo htmlspecialchars($success); ?>');
+            }
+        }, 100);
+        <?php endif; ?>
+        
+        <?php if (!empty($error)): ?>
+        setTimeout(() => {
+            if (window.Toast) {
+                window.Toast.error('<?php echo htmlspecialchars($error); ?>');
+            } else {
+                alert('<?php echo htmlspecialchars($error); ?>');
+            }
+        }, 100);
+        <?php endif; ?>
     </script>
+    <script src="../js/toast.js"></script>
 </body>
 
 </html>
